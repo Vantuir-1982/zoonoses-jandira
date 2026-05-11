@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#198754">
+<title>Zoonoses Jandira</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="Zoonoses Jandira">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root{
+  --verde:#198754;
+  --verde2:#157347;
+  --verde-bg:#d1e7dd;
+  --vermelho:#dc3545;
+  --vermelho-bg:#f8d7da;
+  --amarelo:#ffc107;
+  --amarelo-bg:#fff3cd;
+  --azul:#0d6efd;
+  --azul-bg:#cfe2ff;
+  --cinza:#6c757d;
+  --cinza-bg:#f8f9fa;
+  --laranja:#fd7e14;
+  --branco:#fff;
+  --texto:#212529;
+  --borda:#dee2e6;
+  --sombra:0 2px 8px rgba(0,0,0,.10);
+  --radius:14px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Nunito',sans-serif;background:#f0f4f8;color:var(--texto);min-height:100vh;font-size:15px;}
+
+/* ── TELAS ── */
+.tela{display:none;}
+.tela.ativa{display:block;}
+
+/* ── LOGIN ── */
+#tela-login{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0f5132 0%,#198754 60%,#20c060 100%);
+  padding:20px;
+}
+.login-box{
+  background:var(--branco);width:100%;max-width:360px;
+  padding:32px 24px;border-radius:22px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .mosquito{font-size:48px;display:block;margin-bottom:8px;}
+.login-logo h1{font-size:22px;font-weight:900;color:var(--verde);letter-spacing:-.3px;}
+.login-logo p{font-size:13px;color:var(--cinza);margin-top:3px;}
+.campo-login{margin-bottom:14px;}
+.campo-login label{font-size:12px;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px;}
+.campo-login input{width:100%;padding:13px 14px;border:2px solid var(--borda);border-radius:10px;font-size:15px;font-family:'Nunito',sans-serif;transition:border-color .2s;}
+.campo-login input:focus{outline:none;border-color:var(--verde);}
+.btn-login{width:100%;padding:15px;background:var(--verde);color:white;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;margin-top:6px;letter-spacing:.3px;transition:background .2s;}
+.btn-login:active{background:var(--verde2);}
+.login-perfis{margin-top:20px;padding:14px;background:var(--cinza-bg);border-radius:10px;}
+.login-perfis p{font-size:12px;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.perfil-hint{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;color:var(--cinza);}
+
+/* ── HEADER ── */
+.header{
+  background:var(--verde);color:white;
+  padding:14px 16px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+.header-esq{display:flex;align-items:center;gap:10px;}
+.header h2{font-size:18px;font-weight:800;}
+.header-usuario{font-size:13px;opacity:.85;}
+.btn-header{background:rgba(255,255,255,.18);border:none;color:white;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;}
+
+/* ── CONTAINER ── */
+.container{padding:14px;max-width:900px;margin:0 auto;padding-bottom:20px;}
+
+/* ── CARD ── */
+.card{background:var(--branco);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--sombra);}
+.card-titulo{font-size:16px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+
+/* ── FORM ── */
+.label{font-size:12px;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px;margin-top:12px;margin-bottom:5px;display:block;}
+.input{width:100%;padding:12px 13px;border:2px solid var(--borda);border-radius:10px;font-size:15px;font-family:'Nunito',sans-serif;background:var(--branco);transition:border-color .2s;}
+.input:focus{outline:none;border-color:var(--verde);}
+select.input{cursor:pointer;}
+textarea.input{resize:vertical;min-height:70px;}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+
+/* ── BOTÕES ── */
+.btn{width:100%;padding:14px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:active{opacity:.85;transform:scale(.98);}
+.btn-verde{background:var(--verde);color:white;}
+.btn-vermelho{background:var(--vermelho);color:white;}
+.btn-cinza{background:var(--cinza-bg);color:var(--texto);border:1px solid var(--borda);}
+.btn-azul{background:var(--azul);color:white;}
+.btn-sm{padding:7px 13px;font-size:13px;width:auto;border-radius:8px;}
+
+/* ── KPI ── */
+.kpi{background:var(--branco);border-radius:var(--radius);padding:14px 10px;text-align:center;box-shadow:var(--sombra);}
+.kpi h2{font-size:32px;font-weight:900;color:var(--verde);line-height:1;}
+.kpi p{font-size:12px;color:var(--cinza);margin-top:4px;font-weight:600;}
+
+/* ── BADGE ── */
+.badge{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;display:inline-block;}
+.badge-verde{background:var(--verde-bg);color:var(--verde);}
+.badge-vermelho{background:var(--vermelho-bg);color:var(--vermelho);}
+.badge-amarelo{background:var(--amarelo-bg);color:#856404;}
+.badge-cinza{background:#e9ecef;color:var(--cinza);}
+.badge-azul{background:var(--azul-bg);color:var(--azul);}
+.badge-laranja{background:#ffe5d0;color:#7c3b00;}
+
+/* ── TABELA ── */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.table{width:100%;border-collapse:collapse;min-width:500px;}
+.table th{background:var(--cinza-bg);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--cinza);padding:10px 12px;text-align:left;border-bottom:2px solid var(--borda);}
+.table td{padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:14px;vertical-align:middle;}
+.table tr:last-child td{border-bottom:none;}
+.table tr:hover td{background:#fafafa;}
+
+/* ── FOOTER FIXO ── */
+.footer-save{
+  padding:0 0 20px 0;
+}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:4px;}
+.tab{padding:9px 16px;border-radius:20px;border:2px solid var(--borda);background:white;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;color:var(--cinza);transition:all .15s;}
+.tab.ativo{background:var(--verde);border-color:var(--verde);color:white;}
+
+/* ── ALERTA ── */
+.alerta-flutuante{
+  position:fixed;top:16px;right:16px;
+  padding:13px 18px;border-radius:10px;
+  font-weight:700;font-size:14px;color:white;
+  z-index:9999;box-shadow:var(--sombra);
+  animation:slideIn .3s ease;
+  max-width:300px;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.show{display:flex;}
+.modal{background:white;border-radius:18px;padding:24px;width:100%;max-width:360px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal h3{font-size:18px;font-weight:800;margin-bottom:8px;}
+.modal p{font-size:14px;color:var(--cinza);margin-bottom:20px;}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ── HISTORICO ── */
+.hist-item{background:var(--cinza-bg);border-radius:10px;padding:10px 13px;margin-bottom:8px;border-left:4px solid var(--borda);}
+.hist-item.pos{border-left-color:var(--vermelho);}
+.hist-item.neg{border-left-color:var(--verde);}
+.hist-item.fec{border-left-color:var(--amarelo);}
+.hist-data{font-size:11px;color:var(--cinza);margin-bottom:2px;}
+.hist-info{font-size:13px;font-weight:700;}
+
+/* ── CHECKLIST ── */
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;}
+.check-item:last-child{border-bottom:none;}
+.check-item input[type=checkbox]{width:20px;height:20px;accent-color:var(--verde);cursor:pointer;flex-shrink:0;}
+.check-item label{font-size:14px;cursor:pointer;flex:1;}
+
+/* ── CADASTROS ── */
+.usuario-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.usuario-item:last-child{border-bottom:none;}
+.usuario-info h4{font-size:14px;font-weight:700;}
+.usuario-info p{font-size:12px;color:var(--cinza);}
+.acoes-linha{display:flex;gap:6px;}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  .g4{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:1fr 1fr;}
+  .header h2{font-size:16px;}
+}
+
+/* ── BLOCO OCULTO ── */
+.oculto{display:none!important;}
+
+/* ── VAZIO ── */
+.vazio{text-align:center;padding:40px 20px;color:var(--cinza);}
+.vazio .vi{font-size:40px;margin-bottom:10px;}
+
+/* ── INFO BOX ── */
+.info-box{background:var(--cinza-bg);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--cinza);margin-bottom:12px;border-left:4px solid var(--verde);}
+
+/* ── SEPARADOR ── */
+.sep{height:1px;background:var(--borda);margin:14px 0;}
+
+/* ── NÚMERO GRANDE ── */
+.num-grande{font-size:28px;font-weight:900;color:var(--verde);}
+
+/* ── SUGESTÃO RUAS ── */
+.sugestao-box{background:white;border:2px solid var(--verde);border-radius:10px;margin-top:4px;overflow:hidden;box-shadow:var(--sombra);}
+.sugestao-item{padding:10px 13px;cursor:pointer;font-size:14px;border-bottom:1px solid #f0f0f0;}
+.sugestao-item:last-child{border-bottom:none;}
+.sugestao-item:hover{background:var(--verde-bg);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     TELA LOGIN
+══════════════════════════════════════════ -->
+<div id="tela-login" class="tela ativa">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="mosquito">🦟</span>
+      <h1>Zoonoses Jandira</h1>
+      <p>Sistema Operacional de Campo</p>
+    </div>
+    <div class="campo-login">
+      <label>Registro</label>
+      <input id="inp-registro" placeholder="Ex: AG001" autocomplete="off" />
+    </div>
+    <div class="campo-login">
+      <label>Senha</label>
+      <input id="inp-senha" type="password" placeholder="Digite sua senha" />
+    </div>
+    <button class="btn-login" onclick="fazerLogin()">ENTRAR →</button>
+    <div class="login-perfis">
+      <p>Perfis disponíveis</p>
+      <div class="perfil-hint">🏠 <span><b>Agente</b> — Lançamento de visitas</span></div>
+      <div class="perfil-hint">👨‍💼 <span><b>Supervisor</b> — Supervisão e amostras</span></div>
+      <div class="perfil-hint">👑 <span><b>Supervisor Geral</b> — Painel completo</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA AGENTE
+══════════════════════════════════════════ -->
+<div id="tela-agente" class="tela">
+  <div class="header">
+    <div class="header-esq">
+      <span>🦟</span>
+      <div>
+        <h2>Zoonoses Jandira</h2>
+        <div class="header-usuario" id="agente-topo"></div>
+      </div>
+    </div>
+    <button class="btn-header" onclick="sair()">Sair</button>
+    <button id="btn-instalar" class="btn-header" style="display:none;background:#ffc107;color:#000;gap:6px" onclick="instalarApp()">📲 Instalar App</button>
+  </div>
+
+  <div class="container">
+
+    <!-- INFO DO DIA -->
+    <div class="card">
+      <div class="g3">
+        <div>
+          <span class="label">🏙️ Município</span>
+          <strong>Jandira</strong>
+        </div>
+        <div>
+          <span class="label">👤 Agente</span>
+          <strong id="nome-agente-tela">—</strong>
+        </div>
+        <div>
+          <span class="label">📅 Data</span>
+          <strong id="data-atual-agente">—</strong>
+        </div>
+      </div>
+      <div class="sep"></div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;">
+        <div>
+          <span class="label">🏷️ Atividade</span>
+          <select id="ativ-select" class="input">
+            <option value="1">1 - Ponto Estratégico</option>
+            <option value="2">2 - Imóvel Especial</option>
+            <option value="3">3 - Larvitrampa</option>
+            <option value="4">4 - Ovitrampa</option>
+            <option value="5" selected>5 - Visita a Imóveis</option>
+            <option value="6">6 - Controle de Criadouros</option>
+            <option value="7">7 - Nebulização</option>
+            <option value="8">8 - Avaliação Densidade Larvária</option>
+            <option value="12">12 - Obras</option>
+            <option value="13">13 - Outros</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">📍 Área</span>
+          <input id="area-input" class="input" placeholder="Área" />
+        </div>
+        <div>
+          <span class="label">🔢 Setor</span>
+          <input id="setor-input" class="input" placeholder="Setor" />
+        </div>
+        <div>
+          <span class="label">🏘️ Quarteirão</span>
+          <input id="quart-input" class="input" placeholder="Quadra" />
+        </div>
+      </div>
+    </div>
+
+    <!-- LANÇAMENTO DE IMÓVEL -->
+    <div class="card">
+      <div class="card-titulo">📋 Lançamento de Imóvel</div>
+
+      <span class="label">Cadastro / Ordem</span>
+      <input id="inp-cad" class="input" placeholder="Digite o cadastro do imóvel" />
+
+      <span class="label">Rua / Avenida *</span>
+      <input id="inp-rua" class="input" placeholder="Nome da rua ou avenida" oninput="sugerirRua()" autocomplete="off" />
+      <div id="sugestoes-rua"></div>
+
+      <div class="g2">
+        <div>
+          <span class="label">Número *</span>
+          <input id="inp-numero" class="input" inputmode="numeric" placeholder="Nº" />
+        </div>
+        <div>
+          <span class="label">Complemento</span>
+          <input id="inp-compl" class="input" placeholder="Apto, fundos..." />
+        </div>
+      </div>
+
+      <span class="label">Situação do Imóvel *</span>
+      <select id="inp-situacao" class="input">
+        <option value="Trabalhado">✅ Trabalhado</option>
+        <option value="Fechado">🚫 Fechado</option>
+        <option value="Recusa">❌ Recusa</option>
+        <option value="Desocupado">🏚️ Desocupado</option>
+        <option value="Temporada">🏖️ Temporada</option>
+        <option value="Parcial">⚠️ Parcial</option>
+      </select>
+
+      <!-- HISTÓRICO INLINE -->
+      <div id="bloco-hist-agente" class="oculto" style="margin-top:14px"></div>
+
+      <!-- RECIPIENTES -->
+      <div class="sep"></div>
+      <div class="card-titulo">🪣 Recipientes Encontrados</div>
+
+      <span class="label">Grupo do Recipiente</span>
+      <select id="grupo-rec" class="input" onchange="carregarTipos()">
+        <option value="">— Selecione o grupo —</option>
+        <option value="A">A - Depósito Elevado</option>
+        <option value="B">B - Depósito Não Elevado</option>
+        <option value="C">C - Móveis</option>
+        <option value="D">D - Fixos</option>
+        <option value="E">E - Pneus</option>
+        <option value="F">F - Passíveis de Remoção</option>
+        <option value="G">G - Naturais</option>
+      </select>
+
+      <span class="label">Tipo de Recipiente</span>
+      <select id="tipo-rec" class="input"></select>
+
+      <div class="g3" style="margin-top:10px">
+        <div>
+          <span class="label">Quantidade</span>
+          <input id="qtd-rec" type="number" inputmode="numeric" class="input" placeholder="0" min="1" />
+        </div>
+        <div>
+          <span class="label">Contém Água?</span>
+          <select id="agua-rec" class="input">
+            <option>Não</option>
+            <option>Sim</option>
+          </select>
+        </div>
+        <div>
+          <span class="label">Contém Larva?</span>
+          <select id="larva-rec" class="input" onchange="toggleAmostra()">
+            <option>Não</option>
+            <option>Sim</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="bloco-amostra" class="oculto">
+        <span class="label">Nº da Amostra</span>
+        <input id="amostra-rec" inputmode="numeric" class="input" placeholder="Número da amostra coletada" />
+      </div>
+
+      <span class="label">Medidas de Controle</span>
+      <div class="g2" style="margin-top:6px">
+        <div class="check-item"><input type="checkbox" id="ctrl-mec"><label for="ctrl-mec">🔧 Mecânico</label></div>
+        <div class="check-item"><input type="checkbox" id="ctrl-foc"><label for="ctrl-foc">💊 Focal</label></div>
+        <div class="check-item"><input type="checkbox" id="ctrl-per"><label for="ctrl-per">💊 Perifocal</label></div>
+        <div class="check-item"><input type="checkbox" id="ctrl-neb"><label for="ctrl-neb">💨 Nebulização</label></div>
+      </div>
+
+      <button class="btn btn-azul" style="margin-top:12px" onclick="adicionarRecipiente()">➕ ADICIONAR RECIPIENTE</button>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Grupo</th><th>Tipo</th><th>Qtd</th><th>Água</th><th>Larva</th><th>Amostra</th><th>Controle</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-rec"></tbody>
+        </table>
+      </div>
+      <div id="rec-vazio" class="vazio" style="padding:20px"><div class="vi">🪣</div><p>Nenhum recipiente adicionado</p></div>
+
+      <div class="sep"></div>
+      <span class="label">Observações</span>
+      <textarea id="inp-obs" class="input" placeholder="Situações relevantes, orientações ao morador, particularidades..."></textarea>
+    </div>
+
+    <!-- PRODUÇÃO DO DIA -->
+    <div class="card">
+      <div class="card-titulo">📑 Produção do Dia</div>
+      <div class="info-box" id="ultimo-imovel">Nenhum imóvel lançado ainda.</div>
+      <div class="g4" style="margin-bottom:14px">
+        <div class="kpi"><h2 id="kpi-imoveis">0</h2><p>Imóveis</p></div>
+        <div class="kpi"><h2 id="kpi-rec">0</h2><p>Recipientes</p></div>
+        <div class="kpi"><h2 id="kpi-larvas" style="color:var(--vermelho)">0</h2><p>Com Larva</p></div>
+        <div class="kpi"><h2 id="kpi-amostras" style="color:var(--azul)">0</h2><p>Amostras</p></div>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead><tr><th>CAD</th><th>Endereço</th><th>Situação</th><th>Larva</th><th>Ações</th></tr></thead>
+          <tbody id="tbody-visitas"></tbody>
+        </table>
+      </div>
+      <div id="visitas-vazio" class="vazio"><div class="vi">📋</div><p>Nenhum imóvel lançado hoje.</p></div>
+    </div>
+
+  </div>
+
+  <div class="footer-save">
+    <button class="btn btn-verde" onclick="salvarNova()">➡️ SALVAR E PRÓXIMO IMÓVEL</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA SUPERVISOR
+══════════════════════════════════════════ -->
+<div id="tela-supervisor" class="tela">
+  <div class="header">
+    <div class="header-esq">
+      <span>🦟</span>
+      <div>
+        <h2>Zoonoses Jandira</h2>
+        <div class="header-usuario" id="sup-topo"></div>
+      </div>
+    </div>
+    <button class="btn-header" onclick="sair()">Sair</button>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab ativo" onclick="abaSuper(this,'sup-equipe')">👥 Equipe</button>
+      <button class="tab" onclick="abaSuper(this,'sup-amostras')">🧪 Amostras</button>
+      <button class="tab" onclick="abaSuper(this,'sup-supervisao')">🔎 Supervisão</button>
+    </div>
+
+    <!-- ABA EQUIPE -->
+    <div id="sup-equipe">
+      <div id="sup-kpis" class="g3" style="margin-bottom:14px"></div>
+      <div class="card">
+        <div class="card-titulo">👥 Agentes em Campo Hoje</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Agente</th><th>Área</th><th>Imóveis</th><th>Amostras</th><th>Larvas</th></tr></thead>
+            <tbody id="tbody-sup-agentes"></tbody>
+          </table>
+        </div>
+        <div id="sup-agentes-vazio" class="vazio oculto"><div class="vi">👥</div><p>Nenhuma visita registrada hoje.</p></div>
+      </div>
+    </div>
+
+    <!-- ABA AMOSTRAS -->
+    <div id="sup-amostras" class="oculto">
+      <div class="card">
+        <div class="card-titulo">🧪 Registrar Leitura de Amostra</div>
+        <div class="g2">
+          <div>
+            <span class="label">Agente</span>
+            <select id="amostra-agente" class="input"></select>
+          </div>
+          <div>
+            <span class="label">Número da Amostra</span>
+            <input id="amostra-numero" class="input" inputmode="numeric" placeholder="Ex: 001" />
+          </div>
+        </div>
+        <div class="g2">
+          <div>
+            <span class="label">Espécie Identificada</span>
+            <select id="amostra-especie" class="input">
+              <option>Aedes aegypti</option>
+              <option>Aedes albopictus</option>
+              <option>Culex</option>
+              <option>Outros</option>
+              <option>Negativo</option>
+            </select>
+          </div>
+          <div>
+            <span class="label">Quantidade de Larvas</span>
+            <input id="amostra-qtd" type="number" class="input" placeholder="0" min="0" />
+          </div>
+        </div>
+        <span class="label">Resultado</span>
+        <select id="amostra-resultado" class="input">
+          <option value="Positivo">✅ Positivo</option>
+          <option value="Negativo">❌ Negativo</option>
+        </select>
+        <span class="label">Observações Laboratoriais</span>
+        <textarea id="amostra-obs" class="input" placeholder="Notas sobre a análise..."></textarea>
+        <button class="btn btn-verde" style="margin-top:12px" onclick="salvarAmostra()">💾 SALVAR LEITURA</button>
+      </div>
+
+      <div class="card">
+        <div class="card-titulo">📋 Amostras Registradas</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Agente</th><th>Nº Amostra</th><th>Espécie</th><th>Qtd Larvas</th><th>Resultado</th><th>Data</th></tr></thead>
+            <tbody id="tbody-amostras"></tbody>
+          </table>
+        </div>
+        <div id="amostras-vazio" class="vazio"><div class="vi">🧪</div><p>Nenhuma leitura registrada.</p></div>
+      </div>
+    </div>
+
+    <!-- ABA SUPERVISÃO -->
+    <div id="sup-supervisao" class="oculto">
+      <div class="card">
+        <div class="card-titulo">🔎 Registrar Supervisão</div>
+        <div class="g2">
+          <div>
+            <span class="label">Agente Supervisionado</span>
+            <select id="sup-agente-sel" class="input"></select>
+          </div>
+          <div>
+            <span class="label">Tipo de Supervisão</span>
+            <select id="sup-tipo" class="input">
+              <option>Direta</option>
+              <option>Indireta</option>
+            </select>
+          </div>
+        </div>
+        <span class="label">Itens Avaliados</span>
+        <div style="margin-top:8px">
+          <div class="check-item"><input type="checkbox" id="sc1"><label for="sc1">✅ Uso correto do boletim</label></div>
+          <div class="check-item"><input type="checkbox" id="sc2"><label for="sc2">🔍 Pesquisa de criadouros</label></div>
+          <div class="check-item"><input type="checkbox" id="sc3"><label for="sc3">🗣️ Abordagem ao morador</label></div>
+          <div class="check-item"><input type="checkbox" id="sc4"><label for="sc4">⭐ Qualidade da vistoria</label></div>
+          <div class="check-item"><input type="checkbox" id="sc5"><label for="sc5">📝 Preenchimento correto</label></div>
+          <div class="check-item"><input type="checkbox" id="sc6"><label for="sc6">🦺 Uso de EPIs</label></div>
+        </div>
+        <span class="label">Observações da Supervisão</span>
+        <textarea id="sup-obs" class="input" placeholder="Pontos de melhoria, elogios, situações observadas..."></textarea>
+        <button class="btn btn-verde" style="margin-top:12px" onclick="salvarSupervisao()">✅ SALVAR SUPERVISÃO</button>
+      </div>
+
+      <div class="card">
+        <div class="card-titulo">📋 Supervisões Realizadas</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Agente</th><th>Tipo</th><th>Itens OK</th><th>Data</th><th>Obs</th></tr></thead>
+            <tbody id="tbody-supervisoes"></tbody>
+          </table>
+        </div>
+        <div id="sup-vazio" class="vazio"><div class="vi">🔎</div><p>Nenhuma supervisão registrada.</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TELA ADMIN (SUPERVISOR GERAL)
+══════════════════════════════════════════ -->
+<div id="tela-admin" class="tela">
+  <div class="header">
+    <div class="header-esq">
+      <span>🦟</span>
+      <div>
+        <h2>Zoonoses Jandira</h2>
+        <div class="header-usuario" id="admin-topo"></div>
+      </div>
+    </div>
+    <button class="btn-header" onclick="sair()">Sair</button>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <button class="tab ativo" onclick="abaAdmin(this,'adm-painel')">📊 Painel</button>
+      <button class="tab" onclick="abaAdmin(this,'adm-agentes')">👥 Agentes</button>
+      <button class="tab" onclick="abaAdmin(this,'adm-epidemio')">🦟 Epidemiologia</button>
+      <button class="tab" onclick="abaAdmin(this,'adm-cadastros')">⚙️ Cadastros</button>
+      <button class="tab" onclick="abaAdmin(this,'adm-export')">📤 Exportar</button>
+    </div>
+
+    <!-- ABA PAINEL -->
+    <div id="adm-painel">
+      <div id="adm-kpis" class="g3" style="margin-bottom:14px"></div>
+      <div class="card">
+        <div class="card-titulo">🚨 Alertas Operacionais</div>
+        <div id="adm-alertas"></div>
+      </div>
+      <div class="card">
+        <div class="card-titulo">👨‍💼 Produção dos Supervisores</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Supervisor</th><th>Supervisões</th><th>Agentes</th><th>Data</th></tr></thead>
+            <tbody id="tbody-supervisores"></tbody>
+          </table>
+        </div>
+        <div id="sup-prod-vazio" class="vazio oculto"><div class="vi">👨‍💼</div><p>Nenhuma supervisão registrada.</p></div>
+      </div>
+    </div>
+
+    <!-- ABA AGENTES -->
+    <div id="adm-agentes" class="oculto">
+      <div id="adm-agentes-kpis" class="g3" style="margin-bottom:14px"></div>
+      <div class="card">
+        <div class="card-titulo">👥 Produção Detalhada por Agente</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Agente</th><th>Área</th><th>Imóveis</th><th>Rec.</th><th>Larvas</th><th>Amostras</th><th>Pend.</th></tr></thead>
+            <tbody id="tbody-adm-agentes"></tbody>
+          </table>
+        </div>
+        <div id="adm-ag-vazio" class="vazio oculto"><div class="vi">👥</div><p>Nenhuma visita registrada ainda.</p></div>
+      </div>
+    </div>
+
+    <!-- ABA EPIDEMIOLOGIA -->
+    <div id="adm-epidemio" class="oculto">
+      <div class="card">
+        <div class="card-titulo">🦟 Controle Epidemiológico por Área</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Área</th><th>Imóveis</th><th>Focos</th><th>Amostras</th><th>Positivos</th><th>IIP*</th></tr></thead>
+            <tbody id="tbody-epidemio"></tbody>
+          </table>
+        </div>
+        <p style="font-size:11px;color:var(--cinza);margin-top:8px">* IIP = Índice de Infestação Predial (Focos/Imóveis × 100)</p>
+      </div>
+      <div class="card">
+        <div class="card-titulo">🪣 Recipientes Predominantes</div>
+        <div class="table-wrap">
+          <table class="table">
+            <thead><tr><th>Grupo</th><th>Tipo</th><th>Quantidade</th><th>Com Larva</th></tr></thead>
+            <tbody id="tbody-recipientes-epi"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA CADASTROS -->
+    <div id="adm-cadastros" class="oculto">
+      <div class="card">
+        <div class="card-titulo">➕ Cadastrar Novo Usuário</div>
+        <div class="g2">
+          <div>
+            <span class="label">Nome Completo</span>
+            <input id="cad-nome" class="input" placeholder="Nome do agente/supervisor" />
+          </div>
+          <div>
+            <span class="label">Registro</span>
+            <input id="cad-registro" class="input" placeholder="Ex: AG005" />
+          </div>
+        </div>
+        <div class="g2">
+          <div>
+            <span class="label">Senha</span>
+            <input id="cad-senha" type="password" class="input" placeholder="Senha de acesso" />
+          </div>
+          <div>
+            <span class="label">Perfil</span>
+            <select id="cad-perfil" class="input">
+              <option value="agente">Agente de Campo</option>
+              <option value="supervisor">Supervisor</option>
+            </select>
+          </div>
+        </div>
+        <div class="g2">
+          <div>
+            <span class="label">Área de Atuação</span>
+            <input id="cad-area" class="input" placeholder="Ex: Norte, Sul, 3..." />
+          </div>
+          <div>
+            <span class="label">Supervisor Responsável</span>
+            <select id="cad-supervisor" class="input"></select>
+          </div>
+        </div>
+        <button class="btn btn-verde" style="margin-top:12px" onclick="cadastrarUsuario()">✅ CADASTRAR USUÁRIO</button>
+      </div>
+
+      <div class="card">
+        <div class="card-titulo">👥 Usuários Cadastrados</div>
+        <div id="lista-usuarios"></div>
+      </div>
+    </div>
+
+    <!-- ABA EXPORTAR -->
+    <div id="adm-export" class="oculto">
+      <div class="card">
+        <div class="card-titulo">📊 Resumo para Exportação</div>
+        <div id="resumo-export"></div>
+      </div>
+      <div class="card">
+        <div class="card-titulo">⬇️ Exportar Dados</div>
+        <p style="font-size:13px;color:var(--cinza);margin-bottom:14px">Escolha o formato desejado para exportar os dados ao Sisaweb:</p>
+        <button class="btn btn-verde" style="margin-bottom:10px" onclick="exportarCSV()">📊 EXPORTAR CSV (EXCEL)</button>
+        <button class="btn btn-azul" onclick="exportarTXT()">📄 EXPORTAR RELATÓRIO TXT</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAÇÃO -->
+<div class="overlay" id="modal-confirm">
+  <div class="modal">
+    <h3 id="modal-titulo">Confirmar</h3>
+    <p id="modal-texto">Deseja continuar?</p>
+    <div class="modal-btns">
+      <button class="btn btn-cinza btn-sm" style="width:100%" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-verde btn-sm" style="width:100%" id="modal-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+// ═══════════════════════════════════════════════════
+// SUPABASE — Banco de Dados Central
+// ═══════════════════════════════════════════════════
+const SUPA_URL = 'https://gdttrjejjchaqekldnme.supabase.co';
+const SUPA_KEY = 'sb_publishable_4BT_JXlr3X4NvSSr22u9Bg_QHSWsz2t';
+const supa = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// Cache local para modo offline
+const STORAGE_KEY = 'zoonoses_jandira_v4';
+
+function carregarDadosLocal(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(raw) return JSON.parse(raw);
+  return {
+    usuarios: [
+      {nome:'Vantuir',registro:'ADM01',senha:'admin123',perfil:'supervisor_geral',area:'',supervisor:''}
+    ],
+    visitas:[], amostras:[], supervisoes:[]
+  };
+}
+
+function salvarDadosLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }
+
+// Sincronizar visita com Supabase
+async function sincronizarVisita(visita){
+  try {
+    const { error } = await supa.from('visitas').upsert({
+      id_local:    visita.id.toString(),
+      cad:         visita.cad || '',
+      rua:         visita.rua,
+      numero:      visita.numero,
+      complemento: visita.compl || '',
+      bairro:      visita.bairro || '',
+      situacao:    visita.situacao,
+      atividade:   visita.atividade || '',
+      area:        visita.area || '',
+      setor:       visita.setor || '',
+      quart:       visita.quart || '',
+      recipientes: JSON.stringify(visita.recipientes),
+      rec_total:   visita.recipientes.length,
+      rec_larva:   visita.recipientes.filter(r=>r.larva==='Sim').length,
+      observacoes: visita.obs || '',
+      agente_reg:  visita.agente,
+      agente_nome: visita.agenteNome,
+      data_visita: visita.data,
+      hora_visita: visita.hora,
+      sincronizado: true
+    });
+    if(error) console.warn('Erro ao sincronizar visita:', error.message);
+  } catch(e){ console.warn('Offline — visita salva localmente'); }
+}
+
+// Sincronizar amostra com Supabase
+async function sincronizarAmostra(am){
+  try {
+    const { error } = await supa.from('amostras').upsert({
+      id_local:      am.id.toString(),
+      agente_reg:    am.agente,
+      agente_nome:   am.agenteNome,
+      numero:        am.numero,
+      especie:       am.especie,
+      qtd_larvas:    parseInt(am.qtdLarvas)||0,
+      resultado:     am.resultado,
+      observacoes:   am.obs || '',
+      supervisor_reg: am.supervisor,
+      data_leitura:  am.data
+    });
+    if(error) console.warn('Erro ao sincronizar amostra:', error.message);
+  } catch(e){ console.warn('Offline — amostra salva localmente'); }
+}
+
+// Sincronizar supervisão com Supabase
+async function sincronizarSupervisao(s){
+  try {
+    const { error } = await supa.from('supervisoes').upsert({
+      id_local:        s.id.toString(),
+      agente_reg:      s.agente,
+      agente_nome:     s.agenteNome,
+      tipo:            s.tipo,
+      itens_ok:        s.itensOk,
+      total_itens:     s.totalItens,
+      observacoes:     s.obs || '',
+      supervisor_reg:  s.supervisor,
+      supervisor_nome: s.supervisorNome,
+      data_supervisao: s.data
+    });
+    if(error) console.warn('Erro ao sincronizar supervisão:', error.message);
+  } catch(e){ console.warn('Offline — supervisão salva localmente'); }
+}
+
+// Sincronizar usuário com Supabase
+async function sincronizarUsuario(u){
+  try {
+    const { error } = await supa.from('usuarios').upsert({
+      registro: u.registro,
+      nome:     u.nome,
+      senha:    u.senha,
+      perfil:   u.perfil,
+      area:     u.area || '',
+      supervisor_reg: u.supervisor || ''
+    });
+    if(error) console.warn('Erro ao sincronizar usuário:', error.message);
+  } catch(e){ console.warn('Offline — usuário salvo localmente'); }
+}
+
+// Carregar todos os dados do Supabase
+async function carregarDoSupabase(){
+  try {
+    mostrarCarregando(true);
+
+    // Usuários
+    const { data: users } = await supa.from('usuarios').select('*');
+    if(users && users.length){
+      DB.usuarios = users.map(u=>({
+        nome: u.nome, registro: u.registro, senha: u.senha,
+        perfil: u.perfil, area: u.area||'', supervisor: u.supervisor_reg||''
+      }));
+    }
+
+    // Visitas
+    const { data: visits } = await supa.from('visitas').select('*').order('data_visita', {ascending:false});
+    if(visits){
+      DB.visitas = visits.map(v=>({
+        id: parseInt(v.id_local)||Date.now(),
+        cad: v.cad, rua: v.rua, numero: v.numero,
+        compl: v.complemento, bairro: v.bairro,
+        situacao: v.situacao, atividade: v.atividade,
+        area: v.area, setor: v.setor, quart: v.quart,
+        recipientes: typeof v.recipientes==='string'?JSON.parse(v.recipientes):v.recipientes||[],
+        obs: v.observacoes, agente: v.agente_reg,
+        agenteNome: v.agente_nome, data: v.data_visita, hora: v.hora_visita
+      }));
+    }
+
+    // Amostras
+    const { data: ams } = await supa.from('amostras').select('*').order('data_leitura', {ascending:false});
+    if(ams){
+      DB.amostras = ams.map(a=>({
+        id: parseInt(a.id_local)||Date.now(),
+        agente: a.agente_reg, agenteNome: a.agente_nome,
+        numero: a.numero, especie: a.especie,
+        qtdLarvas: a.qtd_larvas, resultado: a.resultado,
+        obs: a.observacoes, supervisor: a.supervisor_reg, data: a.data_leitura
+      }));
+    }
+
+    // Supervisões
+    const { data: sups } = await supa.from('supervisoes').select('*').order('data_supervisao', {ascending:false});
+    if(sups){
+      DB.supervisoes = sups.map(s=>({
+        id: parseInt(s.id_local)||Date.now(),
+        agente: s.agente_reg, agenteNome: s.agente_nome,
+        tipo: s.tipo, itensOk: s.itens_ok, totalItens: s.total_itens,
+        obs: s.observacoes, supervisor: s.supervisor_reg,
+        supervisorNome: s.supervisor_nome, data: s.data_supervisao
+      }));
+    }
+
+    salvarDadosLocal();
+    mostrarCarregando(false);
+    console.log('✅ Dados sincronizados com Supabase!');
+  } catch(e){
+    console.warn('Offline — usando dados locais');
+    mostrarCarregando(false);
+  }
+}
+
+function mostrarCarregando(show){
+  let el = document.getElementById('loading-overlay');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'loading-overlay';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(25,135,84,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:white;font-family:Nunito,sans-serif;';
+    el.innerHTML = '<div style="font-size:48px;margin-bottom:16px">🦟</div><div style="font-size:20px;font-weight:800">Zoonoses Jandira</div><div style="font-size:14px;margin-top:8px;opacity:.85">Sincronizando dados...</div>';
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+let DB = carregarDadosLocal();
+
+// Inicializar — carrega dados do Supabase ao abrir
+window.addEventListener('load', ()=>{ carregarDoSupabase(); });
+
+let usuarioAtual = null;
+let recipientesTemp = [];
+
+// ═══════════════════════════════════════════════════
+// RECIPIENTES POR GRUPO
+// ═══════════════════════════════════════════════════
+const TIPOS_REC = {
+  A:['1 - Ligado à rede','2 - Não ligado à rede'],
+  B:['3 - Ligado à rede','4 - Não ligado à rede'],
+  C:['5 - Vaso com planta d\'água','6 - Vasos diversos','7 - Prato/pingadeira','8 - Consumo animal','9 - Dep. construção','10 - Hortifruti','11 - Piscina desmontável','12 - Lata/plástico','13 - Garrafas retornáveis','14 - Balde/regador','15 - Bandeja geladeira','16 - Material construção','17 - Outros'],
+  D:['18 - Ralo interno','19 - Ralo externo','20 - Laje','21 - Calha','22 - Sanitário','23 - Piscina','24 - Dep. construção','25 - Hortifruti','26 - Consumo animal','27 - Outros'],
+  E:['28 - Pneu','29 - Outros correlatos'],
+  F:['30 - Lata/frascos','31 - Garrafa descartável','32 - Lona/plástico','33 - Entulho construção','34 - Peças/sucatas','35 - Masseira','36 - Barco','37 - Outros'],
+  G:['38 - Oco de árvore/bambu','39 - Bromélias','40 - Outros']
+};
+
+// ═══════════════════════════════════════════════════
+// LOGIN / SESSÃO
+// ═══════════════════════════════════════════════════
+function fazerLogin(){
+  const reg = document.getElementById('inp-registro').value.trim();
+  const sen = document.getElementById('inp-senha').value;
+  const u = DB.usuarios.find(x => x.registro === reg && x.senha === sen);
+  if(!u){ alerta('❌ Registro ou senha inválidos','erro'); return; }
+  usuarioAtual = u;
+  document.getElementById('tela-login').classList.remove('ativa');
+  if(u.perfil === 'agente'){
+    document.getElementById('tela-agente').classList.add('ativa');
+    document.getElementById('agente-topo').textContent = '👤 '+u.nome;
+    document.getElementById('nome-agente-tela').textContent = u.nome;
+    document.getElementById('data-atual-agente').textContent = hoje();
+    if(u.area) document.getElementById('area-input').value = u.area;
+    atualizarPainelAgente();
+  } else if(u.perfil === 'supervisor'){
+    document.getElementById('tela-supervisor').classList.add('ativa');
+    document.getElementById('sup-topo').textContent = '👨‍💼 '+u.nome;
+    popularSelectAgentes();
+    atualizarPainelSupervisor();
+  } else {
+    document.getElementById('tela-admin').classList.add('ativa');
+    document.getElementById('admin-topo').textContent = '👑 '+u.nome;
+    atualizarPainelAdmin();
+    renderListaUsuarios();
+    popularSelectAgentesAdmin();
+  }
+}
+
+function sair(){
+  confirmar('Sair do sistema?','Seus dados permanecem salvos no dispositivo.',()=>{
+    usuarioAtual = null;
+    recipientesTemp = [];
+    document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
+    document.getElementById('tela-login').classList.add('ativa');
+    document.getElementById('inp-senha').value = '';
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// AGENTE — FORMULÁRIO
+// ═══════════════════════════════════════════════════
+function carregarTipos(){
+  const g = document.getElementById('grupo-rec').value;
+  const sel = document.getElementById('tipo-rec');
+  sel.innerHTML = '';
+  if(!g) return;
+  TIPOS_REC[g].forEach(t=>{ sel.innerHTML+=`<option>${t}</option>`; });
+}
+
+function toggleAmostra(){
+  const v = document.getElementById('larva-rec').value;
+  document.getElementById('bloco-amostra').classList.toggle('oculto', v !== 'Sim');
+  if(v !== 'Sim') document.getElementById('amostra-rec').value = '';
+}
+
+function adicionarRecipiente(){
+  const grupo = document.getElementById('grupo-rec').value;
+  const tipo  = document.getElementById('tipo-rec').value;
+  const qtd   = document.getElementById('qtd-rec').value;
+  if(!grupo){ alerta('⚠️ Selecione o grupo do recipiente','aviso'); return; }
+  if(!qtd || qtd < 1){ alerta('⚠️ Informe a quantidade','aviso'); return; }
+  const r = {
+    grupo, tipo, qtd: parseInt(qtd),
+    agua: document.getElementById('agua-rec').value,
+    larva: document.getElementById('larva-rec').value,
+    amostra: document.getElementById('amostra-rec').value,
+    mecanico: document.getElementById('ctrl-mec').checked,
+    focal: document.getElementById('ctrl-foc').checked,
+    perifocal: document.getElementById('ctrl-per').checked,
+    nebulizacao: document.getElementById('ctrl-neb').checked
+  };
+  recipientesTemp.push(r);
+  renderTabelaRec();
+  // limpar campos
+  document.getElementById('grupo-rec').selectedIndex=0;
+  document.getElementById('tipo-rec').innerHTML='';
+  document.getElementById('qtd-rec').value='';
+  document.getElementById('agua-rec').selectedIndex=0;
+  document.getElementById('larva-rec').selectedIndex=0;
+  document.getElementById('amostra-rec').value='';
+  document.getElementById('bloco-amostra').classList.add('oculto');
+  ['ctrl-mec','ctrl-foc','ctrl-per','ctrl-neb'].forEach(id=>document.getElementById(id).checked=false);
+}
+
+function renderTabelaRec(){
+  const tb = document.getElementById('tbody-rec');
+  const vazio = document.getElementById('rec-vazio');
+  tb.innerHTML = '';
+  if(!recipientesTemp.length){ vazio.style.display=''; return; }
+  vazio.style.display='none';
+  recipientesTemp.forEach((r,i)=>{
+    const ctrl=[];
+    if(r.mecanico) ctrl.push('Mec');
+    if(r.focal) ctrl.push('Foc');
+    if(r.perifocal) ctrl.push('Per');
+    if(r.nebulizacao) ctrl.push('Neb');
+    tb.innerHTML+=`<tr>
+      <td>${r.grupo}</td>
+      <td style="font-size:12px">${r.tipo}</td>
+      <td>${r.qtd}</td>
+      <td>${r.agua}</td>
+      <td>${r.larva==='Sim'?'<span class="badge badge-vermelho">Sim</span>':'<span class="badge badge-verde">Não</span>'}</td>
+      <td>${r.amostra||'—'}</td>
+      <td style="font-size:12px">${ctrl.join(', ')||'—'}</td>
+      <td><button class="btn btn-cinza btn-sm" onclick="removerRec(${i})">🗑</button></td>
+    </tr>`;
+  });
+}
+
+function removerRec(i){ recipientesTemp.splice(i,1); renderTabelaRec(); }
+
+function salvarDados(){ salvarDadosLocal(); }
+
+function salvarNova(){
+  const rua = document.getElementById('inp-rua').value.trim();
+  const num = document.getElementById('inp-numero').value.trim();
+  if(!rua){ alerta('❌ Informe a rua do imóvel','erro'); return; }
+  if(!num){ alerta('❌ Informe o número do imóvel','erro'); return; }
+
+  const cad = document.getElementById('inp-cad').value.trim();
+  const hoje_str = hoje();
+
+  // checar duplicado
+  const dup = DB.visitas.find(v=> v.cad && v.cad===cad && v.data===hoje_str && v.agente===usuarioAtual.registro);
+  if(dup && cad){
+    confirmar('Cadastro já lançado hoje','Deseja lançar novamente?',()=>_gravarVisita());
+    return;
+  }
+
+  // larva sem amostra
+  const larvaSemAmostra = recipientesTemp.some(r=>r.larva==='Sim' && !r.amostra);
+  if(larvaSemAmostra){
+    confirmar('Larva sem amostra','Há recipiente com larva sem número de amostra. Deseja continuar?',()=>_gravarVisita());
+    return;
+  }
+  _gravarVisita();
+}
+
+function _gravarVisita(){
+  const v = {
+    id: Date.now(),
+    cad:       document.getElementById('inp-cad').value.trim(),
+    rua:       document.getElementById('inp-rua').value.trim(),
+    numero:    document.getElementById('inp-numero').value.trim(),
+    compl:     document.getElementById('inp-compl').value.trim(),
+    situacao:  document.getElementById('inp-situacao').value,
+    obs:       document.getElementById('inp-obs').value.trim(),
+    atividade: document.getElementById('ativ-select').value,
+    area:      document.getElementById('area-input').value.trim(),
+    setor:     document.getElementById('setor-input').value.trim(),
+    quart:     document.getElementById('quart-input').value.trim(),
+    recipientes: [...recipientesTemp],
+    agente:    usuarioAtual.registro,
+    agenteNome: usuarioAtual.nome,
+    data:      hoje(),
+    hora:      agora()
+  };
+  DB.visitas.push(v);
+  salvarDados();
+  sincronizarVisita(v);
+  alerta('✅ Imóvel salvo com sucesso!');
+  limparFormVisita();
+  atualizarPainelAgente();
+}
+
+function limparFormVisita(){
+  ['inp-cad','inp-rua','inp-numero','inp-compl','inp-obs'].forEach(id=>{ document.getElementById(id).value=''; });
+  document.getElementById('inp-situacao').selectedIndex=0;
+  recipientesTemp=[];
+  renderTabelaRec();
+  document.getElementById('inp-cad').focus();
+  document.getElementById('bloco-hist-agente').classList.add('oculto');
+  document.getElementById('sugestoes-rua').innerHTML='';
+}
+
+function atualizarPainelAgente(){
+  const minhas = DB.visitas.filter(v=>v.agente===usuarioAtual.registro && v.data===hoje());
+  const tb = document.getElementById('tbody-visitas');
+  const vazio = document.getElementById('visitas-vazio');
+  tb.innerHTML='';
+  if(!minhas.length){ vazio.style.display=''; }
+  else{
+    vazio.style.display='none';
+    minhas.forEach((v,i)=>{
+      const temLarva = v.recipientes.some(r=>r.larva==='Sim');
+      tb.innerHTML+=`<tr>
+        <td>${v.cad||'—'}</td>
+        <td>${v.rua}, ${v.numero}</td>
+        <td>${badgeSit(v.situacao)}</td>
+        <td>${temLarva?'<span class="badge badge-vermelho">🦟 Positivo</span>':'<span class="badge badge-verde">Negativo</span>'}</td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-cinza btn-sm" onclick="editarVisita(${v.id})">✏️</button>
+            <button class="btn btn-cinza btn-sm" onclick="excluirVisita(${v.id})">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    });
+  }
+  // KPIs
+  let recTotal=0, larvaTotal=0, amostrasTotal=0;
+  minhas.forEach(v=>{
+    recTotal += v.recipientes.length;
+    v.recipientes.forEach(r=>{ if(r.larva==='Sim') larvaTotal++; if(r.amostra) amostrasTotal++; });
+  });
+  document.getElementById('kpi-imoveis').textContent = minhas.length;
+  document.getElementById('kpi-rec').textContent = recTotal;
+  document.getElementById('kpi-larvas').textContent = larvaTotal;
+  document.getElementById('kpi-amostras').textContent = amostrasTotal;
+  if(minhas.length){
+    const ult = minhas[minhas.length-1];
+    document.getElementById('ultimo-imovel').innerHTML = `🕘 Último: <b>${ult.rua}, ${ult.numero}</b> — ${ult.situacao} — ${ult.hora}`;
+  }
+}
+
+function editarVisita(id){
+  const idx = DB.visitas.findIndex(v=>v.id===id);
+  if(idx<0) return;
+  const v = DB.visitas[idx];
+  document.getElementById('inp-cad').value = v.cad;
+  document.getElementById('inp-rua').value = v.rua;
+  document.getElementById('inp-numero').value = v.numero;
+  document.getElementById('inp-compl').value = v.compl;
+  document.getElementById('inp-situacao').value = v.situacao;
+  document.getElementById('inp-obs').value = v.obs;
+  recipientesTemp = [...v.recipientes];
+  renderTabelaRec();
+  DB.visitas.splice(idx,1);
+  salvarDados();
+  atualizarPainelAgente();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function excluirVisita(id){
+  confirmar('Excluir visita?','Esta ação não pode ser desfeita.',()=>{
+    DB.visitas = DB.visitas.filter(v=>v.id!==id);
+    salvarDados(); atualizarPainelAgente();
+    alerta('Visita excluída.');
+  });
+}
+
+// SUGESTÃO DE RUAS
+function sugerirRua(){
+  const val = document.getElementById('inp-rua').value.trim().toLowerCase();
+  const box = document.getElementById('sugestoes-rua');
+  box.innerHTML='';
+  if(val.length < 2) return;
+  const ruas = [...new Set(DB.visitas.map(v=>v.rua).filter(r=>r.toLowerCase().includes(val)))].slice(0,5);
+  if(!ruas.length) return;
+  box.innerHTML = '<div class="sugestao-box">'+ruas.map(r=>`<div class="sugestao-item" onclick="selecionarRua('${r.replace(/'/g,"\\'")}')">${r}</div>`).join('')+'</div>';
+  // histórico
+  buscarHistoricoAgente();
+}
+
+function selecionarRua(r){
+  document.getElementById('inp-rua').value = r;
+  document.getElementById('sugestoes-rua').innerHTML='';
+  buscarHistoricoAgente();
+}
+
+function buscarHistoricoAgente(){
+  const rua = document.getElementById('inp-rua').value.trim().toLowerCase();
+  const num = document.getElementById('inp-numero').value.trim();
+  const bloco = document.getElementById('bloco-hist-agente');
+  if(!rua || !num){ bloco.classList.add('oculto'); return; }
+  const hist = DB.visitas.filter(v=>v.rua.toLowerCase()===rua && v.numero===num).reverse().slice(0,3);
+  if(!hist.length){ bloco.classList.add('oculto'); return; }
+  bloco.classList.remove('oculto');
+  bloco.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--azul);margin-bottom:8px">📜 HISTÓRICO DESTE IMÓVEL</div>`+
+  hist.map(v=>{
+    const tl = v.recipientes.some(r=>r.larva==='Sim');
+    return `<div class="hist-item ${tl?'pos':v.situacao==='Trabalhado'?'neg':'fec'}">
+      <div class="hist-data">📅 ${v.data} às ${v.hora} — 👤 ${v.agenteNome}</div>
+      <div class="hist-info">${v.situacao}${tl?' • 🦟 Foco encontrado':''}</div>
+      ${v.obs?`<div style="font-size:12px;color:var(--cinza);margin-top:2px">📝 ${v.obs.slice(0,60)}${v.obs.length>60?'…':''}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// SUPERVISOR
+// ═══════════════════════════════════════════════════
+function popularSelectAgentes(){
+  const agentes = DB.usuarios.filter(u=>u.perfil==='agente');
+  ['amostra-agente','sup-agente-sel'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    sel.innerHTML='<option value="">— Selecione —</option>';
+    agentes.forEach(a=>{ sel.innerHTML+=`<option value="${a.registro}">${a.nome}</option>`; });
+  });
+}
+
+function abaSuper(btn, id){
+  document.querySelectorAll('#tela-supervisor .tab').forEach(t=>t.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  ['sup-equipe','sup-amostras','sup-supervisao'].forEach(d=>document.getElementById(d).classList.add('oculto'));
+  document.getElementById(id).classList.remove('oculto');
+  if(id==='sup-equipe') atualizarPainelSupervisor();
+  if(id==='sup-amostras') renderAmostras();
+  if(id==='sup-supervisao') renderSupervisoes();
+}
+
+function atualizarPainelSupervisor(){
+  const hj = hoje();
+  const visitasHoje = DB.visitas.filter(v=>v.data===hj);
+  const agentesComVisita = [...new Set(visitasHoje.map(v=>v.agente))];
+  const tb = document.getElementById('tbody-sup-agentes');
+  const vazio = document.getElementById('sup-agentes-vazio');
+  tb.innerHTML='';
+  if(!agentesComVisita.length){ vazio.classList.remove('oculto'); }
+  else{
+    vazio.classList.add('oculto');
+    agentesComVisita.forEach(reg=>{
+      const u = DB.usuarios.find(x=>x.registro===reg)||{nome:reg};
+      const vv = visitasHoje.filter(v=>v.agente===reg);
+      let rec=0, larvas=0, ams=0;
+      vv.forEach(v=>{ rec+=v.recipientes.length; v.recipientes.forEach(r=>{ if(r.larva==='Sim')larvas++; if(r.amostra)ams++; }); });
+      const area = vv[0]?.area || u.area || '—';
+      tb.innerHTML+=`<tr>
+        <td><b>${u.nome}</b></td>
+        <td>${area}</td>
+        <td><b>${vv.length}</b></td>
+        <td>${ams}</td>
+        <td>${larvas>0?`<span class="badge badge-vermelho">${larvas}</span>`:'0'}</td>
+      </tr>`;
+    });
+  }
+  // KPIs supervisor
+  const totalImoveis = visitasHoje.length;
+  let totalRec=0, totalLarvas=0;
+  visitasHoje.forEach(v=>{ totalRec+=v.recipientes.length; v.recipientes.forEach(r=>{ if(r.larva==='Sim')totalLarvas++; }); });
+  document.getElementById('sup-kpis').innerHTML=`
+    <div class="kpi"><h2>${totalImoveis}</h2><p>Imóveis Hoje</p></div>
+    <div class="kpi"><h2 style="color:var(--vermelho)">${totalLarvas}</h2><p>Focos Hoje</p></div>
+    <div class="kpi"><h2 style="color:var(--azul)">${agentesComVisita.length}</h2><p>Agentes Ativos</p></div>`;
+}
+
+function salvarAmostra(){
+  const ag = document.getElementById('amostra-agente').value;
+  const num = document.getElementById('amostra-numero').value.trim();
+  if(!ag){ alerta('⚠️ Selecione o agente','aviso'); return; }
+  if(!num){ alerta('⚠️ Informe o número da amostra','aviso'); return; }
+  const am = {
+    id: Date.now(),
+    agente: ag,
+    agenteNome: DB.usuarios.find(u=>u.registro===ag)?.nome||ag,
+    numero: num,
+    especie: document.getElementById('amostra-especie').value,
+    qtdLarvas: document.getElementById('amostra-qtd').value,
+    resultado: document.getElementById('amostra-resultado').value,
+    obs: document.getElementById('amostra-obs').value,
+    supervisor: usuarioAtual.registro,
+    data: hoje()
+  };
+  DB.amostras.push(am);
+  salvarDados();
+  sincronizarAmostra(am);
+  alerta('✅ Leitura de amostra salva!');
+  document.getElementById('amostra-numero').value='';
+  document.getElementById('amostra-qtd').value='';
+  document.getElementById('amostra-obs').value='';
+  renderAmostras();
+}
+
+function renderAmostras(){
+  const tb = document.getElementById('tbody-amostras');
+  const vazio = document.getElementById('amostras-vazio');
+  tb.innerHTML='';
+  if(!DB.amostras.length){ vazio.style.display=''; return; }
+  vazio.style.display='none';
+  [...DB.amostras].reverse().forEach(a=>{
+    tb.innerHTML+=`<tr>
+      <td>${a.agenteNome}</td>
+      <td>${a.numero}</td>
+      <td>${a.especie}</td>
+      <td>${a.qtdLarvas||0}</td>
+      <td>${a.resultado==='Positivo'?'<span class="badge badge-vermelho">Positivo</span>':'<span class="badge badge-verde">Negativo</span>'}</td>
+      <td>${a.data}</td>
+    </tr>`;
+  });
+}
+
+function salvarSupervisao(){
+  const ag = document.getElementById('sup-agente-sel').value;
+  if(!ag){ alerta('⚠️ Selecione o agente','aviso'); return; }
+  const itens = ['sc1','sc2','sc3','sc4','sc5','sc6'];
+  const ok = itens.filter(id=>document.getElementById(id).checked).length;
+  const s = {
+    id: Date.now(),
+    agente: ag,
+    agenteNome: DB.usuarios.find(u=>u.registro===ag)?.nome||ag,
+    tipo: document.getElementById('sup-tipo').value,
+    itensOk: ok,
+    totalItens: 6,
+    obs: document.getElementById('sup-obs').value,
+    supervisor: usuarioAtual.registro,
+    supervisorNome: usuarioAtual.nome,
+    data: hoje()
+  };
+  DB.supervisoes.push(s);
+  salvarDados();
+  sincronizarSupervisao(s);
+  alerta('✅ Supervisão salva!');
+  itens.forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('sup-obs').value='';
+  renderSupervisoes();
+}
+
+function renderSupervisoes(){
+  const tb = document.getElementById('tbody-supervisoes');
+  const vazio = document.getElementById('sup-vazio');
+  tb.innerHTML='';
+  if(!DB.supervisoes.length){ vazio.style.display=''; return; }
+  vazio.style.display='none';
+  [...DB.supervisoes].reverse().forEach(s=>{
+    tb.innerHTML+=`<tr>
+      <td>${s.agenteNome}</td>
+      <td>${s.tipo}</td>
+      <td>${s.itensOk}/${s.totalItens}</td>
+      <td>${s.data}</td>
+      <td style="font-size:12px;max-width:160px">${s.obs?s.obs.slice(0,50)+(s.obs.length>50?'…':''):'—'}</td>
+    </tr>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════
+function abaAdmin(btn, id){
+  document.querySelectorAll('#tela-admin .tab').forEach(t=>t.classList.remove('ativo'));
+  btn.classList.add('ativo');
+  ['adm-painel','adm-agentes','adm-epidemio','adm-cadastros','adm-export'].forEach(d=>document.getElementById(d).classList.add('oculto'));
+  document.getElementById(id).classList.remove('oculto');
+  if(id==='adm-painel') atualizarPainelAdmin();
+  if(id==='adm-agentes') renderAdmAgentes();
+  if(id==='adm-epidemio') renderEpidemio();
+  if(id==='adm-cadastros'){ renderListaUsuarios(); popularSelectAgentesAdmin(); }
+  if(id==='adm-export') renderResumoExport();
+}
+
+function atualizarPainelAdmin(){
+  const hj = hoje();
+  const hV = DB.visitas.filter(v=>v.data===hj);
+  let totalRec=0, totalLarvas=0, totalAmostras=0;
+  hV.forEach(v=>{ totalRec+=v.recipientes.length; v.recipientes.forEach(r=>{ if(r.larva==='Sim')totalLarvas++; if(r.amostra)totalAmostras++; }); });
+  document.getElementById('adm-kpis').innerHTML=`
+    <div class="kpi"><h2>${hV.length}</h2><p>Imóveis Hoje</p></div>
+    <div class="kpi"><h2 style="color:var(--vermelho)">${totalLarvas}</h2><p>Focos Hoje</p></div>
+    <div class="kpi"><h2 style="color:var(--azul)">${DB.amostras.length}</h2><p>Amostras Total</p></div>`;
+
+  // Alertas
+  const amostrasAguardando = DB.visitas.reduce((s,v)=>s+v.recipientes.filter(r=>r.larva==='Sim'&&r.amostra&&!DB.amostras.find(a=>a.numero===r.amostra)).length,0);
+  const areasAlerta = getAreasComAumento();
+  let html='';
+  if(amostrasAguardando>0) html+=`<div class="hist-item pos"><div class="hist-info">📋 ${amostrasAguardando} amostra(s) aguardando leitura laboratorial</div></div>`;
+  if(totalLarvas>5) html+=`<div class="hist-item pos"><div class="hist-info">🦟 Alto número de focos hoje: ${totalLarvas}</div></div>`;
+  areasAlerta.forEach(a=>{ html+=`<div class="hist-item fec"><div class="hist-info">📍 Área ${a}: concentração de focos identificada</div></div>`; });
+  if(!html) html='<div style="color:var(--cinza);font-size:14px;padding:10px 0">✅ Nenhum alerta no momento.</div>';
+  document.getElementById('adm-alertas').innerHTML=html;
+
+  // Produção supervisores
+  const sups = DB.usuarios.filter(u=>u.perfil==='supervisor');
+  const tb = document.getElementById('tbody-supervisores');
+  const vazio = document.getElementById('sup-prod-vazio');
+  tb.innerHTML='';
+  const supsSup = DB.supervisoes.map(s=>s.supervisorNome);
+  if(!supsSup.length){ vazio.classList.remove('oculto'); }
+  else{
+    vazio.classList.add('oculto');
+    const contagem={};
+    DB.supervisoes.forEach(s=>{ if(!contagem[s.supervisorNome])contagem[s.supervisorNome]={total:0,agentes:new Set(),ultima:''}; contagem[s.supervisorNome].total++; contagem[s.supervisorNome].agentes.add(s.agenteNome); contagem[s.supervisorNome].ultima=s.data; });
+    Object.entries(contagem).forEach(([nome,d])=>{
+      tb.innerHTML+=`<tr><td><b>${nome}</b></td><td>${d.total}</td><td>${d.agentes.size}</td><td>${d.ultima}</td></tr>`;
+    });
+  }
+}
+
+function getAreasComAumento(){
+  const areas={};
+  DB.visitas.forEach(v=>{ if(!v.area) return; if(!areas[v.area])areas[v.area]=0; if(v.recipientes.some(r=>r.larva==='Sim'))areas[v.area]++; });
+  return Object.entries(areas).filter(([,n])=>n>=3).map(([a])=>a);
+}
+
+function renderAdmAgentes(){
+  const agentes = DB.usuarios.filter(u=>u.perfil==='agente');
+  const tb = document.getElementById('tbody-adm-agentes');
+  const vazio = document.getElementById('adm-ag-vazio');
+  tb.innerHTML='';
+  if(!agentes.length){ vazio.classList.remove('oculto'); return; }
+  vazio.classList.add('oculto');
+  agentes.forEach(ag=>{
+    const vv = DB.visitas.filter(v=>v.agente===ag.registro);
+    let rec=0, larvas=0, ams=0, pend=0;
+    vv.forEach(v=>{ rec+=v.recipientes.length; v.recipientes.forEach(r=>{ if(r.larva==='Sim')larvas++; if(r.amostra)ams++; if(r.larva==='Sim'&&!r.amostra)pend++; }); });
+    tb.innerHTML+=`<tr>
+      <td><b>${ag.nome}</b></td>
+      <td>${ag.area||'—'}</td>
+      <td>${vv.length}</td>
+      <td>${rec}</td>
+      <td>${larvas>0?`<span class="badge badge-vermelho">${larvas}</span>`:'0'}</td>
+      <td>${ams}</td>
+      <td>${pend>0?`<span class="badge badge-amarelo">${pend}</span>`:'0'}</td>
+    </tr>`;
+  });
+  // KPIs
+  let totalI=0, totalL=0, totalA=0;
+  DB.visitas.forEach(v=>{ totalI++; v.recipientes.forEach(r=>{ if(r.larva==='Sim')totalL++; if(r.amostra)totalA++; }); });
+  document.getElementById('adm-agentes-kpis').innerHTML=`
+    <div class="kpi"><h2>${totalI}</h2><p>Imóveis Total</p></div>
+    <div class="kpi"><h2 style="color:var(--vermelho)">${totalL}</h2><p>Focos Total</p></div>
+    <div class="kpi"><h2 style="color:var(--azul)">${totalA}</h2><p>Amostras Total</p></div>`;
+}
+
+function renderEpidemio(){
+  // por área
+  const areas={};
+  DB.visitas.forEach(v=>{
+    const a = v.area||'Sem área';
+    if(!areas[a]) areas[a]={imoveis:0,focos:0,ams:0};
+    areas[a].imoveis++;
+    if(v.recipientes.some(r=>r.larva==='Sim')) areas[a].focos++;
+    if(v.recipientes.some(r=>r.amostra)) areas[a].ams++;
+  });
+  const tb = document.getElementById('tbody-epidemio');
+  tb.innerHTML='';
+  const posAmostras = DB.amostras.filter(a=>a.resultado==='Positivo').length;
+  Object.entries(areas).forEach(([area,d])=>{
+    const iip = d.imoveis>0?(d.focos/d.imoveis*100).toFixed(1):'0.0';
+    const cor = parseFloat(iip)>=1?'badge-vermelho':parseFloat(iip)>0?'badge-amarelo':'badge-verde';
+    tb.innerHTML+=`<tr>
+      <td><b>${area}</b></td>
+      <td>${d.imoveis}</td>
+      <td>${d.focos>0?`<span class="badge badge-vermelho">${d.focos}</span>`:0}</td>
+      <td>${d.ams}</td>
+      <td>${posAmostras}</td>
+      <td><span class="badge ${cor}">${iip}%</span></td>
+    </tr>`;
+  });
+
+  // recipientes
+  const grupos={};
+  DB.visitas.forEach(v=>v.recipientes.forEach(r=>{
+    const k=`${r.grupo}|${r.tipo}`;
+    if(!grupos[k]) grupos[k]={grupo:r.grupo,tipo:r.tipo,qtd:0,larva:0};
+    grupos[k].qtd+=r.qtd||1;
+    if(r.larva==='Sim') grupos[k].larva++;
+  }));
+  const tbR = document.getElementById('tbody-recipientes-epi');
+  tbR.innerHTML='';
+  Object.values(grupos).sort((a,b)=>b.larva-a.larva).forEach(g=>{
+    tbR.innerHTML+=`<tr>
+      <td>${g.grupo}</td>
+      <td style="font-size:12px">${g.tipo}</td>
+      <td>${g.qtd}</td>
+      <td>${g.larva>0?`<span class="badge badge-vermelho">${g.larva}</span>`:'0'}</td>
+    </tr>`;
+  });
+}
+
+function popularSelectAgentesAdmin(){
+  const sups = DB.usuarios.filter(u=>u.perfil==='supervisor'||u.perfil==='supervisor_geral');
+  const sel = document.getElementById('cad-supervisor');
+  if(!sel) return;
+  sel.innerHTML='<option value="">— Nenhum —</option>';
+  sups.forEach(s=>{ sel.innerHTML+=`<option value="${s.registro}">${s.nome}</option>`; });
+}
+
+function cadastrarUsuario(){
+  const nome = document.getElementById('cad-nome').value.trim();
+  const reg  = document.getElementById('cad-registro').value.trim().toUpperCase();
+  const senha= document.getElementById('cad-senha').value;
+  const perf = document.getElementById('cad-perfil').value;
+  const area = document.getElementById('cad-area').value.trim();
+  const sup  = document.getElementById('cad-supervisor').value;
+  if(!nome||!reg||!senha){ alerta('❌ Preencha nome, registro e senha','erro'); return; }
+  if(DB.usuarios.find(u=>u.registro===reg)){ alerta('❌ Registro já cadastrado','erro'); return; }
+  const novoUser = {nome,registro:reg,senha,perfil:perf,area,supervisor:sup};
+  DB.usuarios.push(novoUser);
+  salvarDados();
+  sincronizarUsuario(novoUser);
+  alerta('✅ Usuário cadastrado com sucesso!');
+  ['cad-nome','cad-registro','cad-senha','cad-area'].forEach(id=>document.getElementById(id).value='');
+  renderListaUsuarios();
+  popularSelectAgentesAdmin();
+}
+
+function renderListaUsuarios(){
+  const el = document.getElementById('lista-usuarios');
+  const cores={agente:'badge-azul',supervisor:'badge-verde',supervisor_geral:'badge-vermelho'};
+  const labels={agente:'Agente',supervisor:'Supervisor',supervisor_geral:'Sup. Geral'};
+  el.innerHTML = DB.usuarios.map((u,i)=>`
+    <div class="usuario-item">
+      <div class="usuario-info">
+        <h4>${u.nome}</h4>
+        <p>Reg: ${u.registro} ${u.area?'• Área: '+u.area:''}</p>
+      </div>
+      <div class="acoes-linha">
+        <span class="badge ${cores[u.perfil]||'badge-cinza'}">${labels[u.perfil]||u.perfil}</span>
+        ${u.perfil!=='supervisor_geral'?`<button class="btn btn-cinza btn-sm" onclick="excluirUsuario(${i})">🗑</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function excluirUsuario(i){
+  const u = DB.usuarios[i];
+  if(u.perfil==='supervisor_geral'){ alerta('❌ Não é possível excluir o supervisor geral','erro'); return; }
+  confirmar(`Excluir ${u.nome}?`,'Esta ação não pode ser desfeita.',()=>{
+    DB.usuarios.splice(i,1); salvarDados(); renderListaUsuarios(); alerta('Usuário excluído.');
+  });
+}
+
+function renderResumoExport(){
+  const hj = hoje();
+  const hV = DB.visitas.filter(v=>v.data===hj);
+  let larvas=0,ams=0;
+  hV.forEach(v=>v.recipientes.forEach(r=>{ if(r.larva==='Sim')larvas++; if(r.amostra)ams++; }));
+  document.getElementById('resumo-export').innerHTML=`
+    <div style="display:grid;gap:8px">
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borda)"><span>Visitas hoje</span><b>${hV.length}</b></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borda)"><span>Focos hoje</span><b>${larvas}</b></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borda)"><span>Amostras hoje</span><b>${ams}</b></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--borda)"><span>Total de visitas (geral)</span><b>${DB.visitas.length}</b></div>
+      <div style="display:flex;justify-content:space-between;padding:8px 0"><span>Total de amostras lidas</span><b>${DB.amostras.length}</b></div>
+    </div>`;
+}
+
+function exportarCSV(){
+  if(!DB.visitas.length){ alerta('Nenhuma visita para exportar','aviso'); return; }
+  const cab=['ID','Data','Hora','Agente','Área','Setor','Quarteirão','Atividade','CAD','Rua','Número','Complemento','Situação','Rec.Total','Com Larva','Amostras','Observações'];
+  const rows = DB.visitas.map(v=>{
+    const rec=v.recipientes.length;
+    const lv=v.recipientes.filter(r=>r.larva==='Sim').length;
+    const am=v.recipientes.filter(r=>r.amostra).length;
+    return [v.id,v.data,v.hora,v.agenteNome,v.area,v.setor,v.quart,v.atividade,v.cad,v.rua,v.numero,v.compl,v.situacao,rec,lv,am,v.obs].map(c=>'"'+(c||'').toString().replace(/"/g,'""')+'"').join(',');
+  });
+  baixar('\ufeff'+[cab.join(','),...rows].join('\n'),'visitas_jandira_'+hj()+'.csv','text/csv;charset=utf-8;');
+  alerta('✅ CSV exportado com sucesso!');
+}
+
+function exportarTXT(){
+  if(!DB.visitas.length){ alerta('Nenhuma visita para exportar','aviso'); return; }
+  const d = hoje();
+  const hV = DB.visitas.filter(v=>v.data===d);
+  let t=`BOLETIM ZOONOSES JANDIRA\nData: ${d} | Gerado: ${agora()}\n${'─'.repeat(50)}\n`;
+  t+=`RESUMO: ${hV.length} imóveis | ${hV.reduce((s,v)=>s+v.recipientes.filter(r=>r.larva==='Sim').length,0)} focos\n\n`;
+  hV.forEach((v,i)=>{
+    t+=`${i+1}. ${v.rua}, ${v.numero} — ${v.situacao}\n`;
+    t+=`   Agente: ${v.agenteNome} | Área: ${v.area||'—'} | ${v.hora}\n`;
+    if(v.recipientes.length) t+=`   Recipientes: ${v.recipientes.length} (${v.recipientes.filter(r=>r.larva==='Sim').length} c/ larva)\n`;
+    if(v.obs) t+=`   Obs: ${v.obs}\n`;
+    t+='\n';
+  });
+  baixar(t,'relatorio_jandira_'+d+'.txt','text/plain;charset=utf-8;');
+  alerta('✅ Relatório exportado!');
+}
+
+// ═══════════════════════════════════════════════════
+// UTILITÁRIOS
+// ═══════════════════════════════════════════════════
+function hoje(){ return new Date().toLocaleDateString('pt-BR'); }
+function hj(){ return new Date().toISOString().slice(0,10); }
+function agora(){ return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+
+function badgeSit(s){
+  const m={Trabalhado:'badge-verde',Fechado:'badge-amarelo',Recusa:'badge-vermelho',Desocupado:'badge-cinza',Temporada:'badge-azul',Parcial:'badge-laranja'};
+  return `<span class="badge ${m[s]||'badge-cinza'}">${s}</span>`;
+}
+
+function alerta(msg, tipo='sucesso'){
+  const el=document.createElement('div');
+  el.className='alerta-flutuante';
+  el.textContent=msg;
+  el.style.background = tipo==='erro'?'#dc3545':tipo==='aviso'?'#ffc107':'#198754';
+  if(tipo==='aviso') el.style.color='#000';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),2500);
+}
+
+function baixar(conteudo,nome,tipo){
+  const b=new Blob([conteudo],{type:tipo});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=u; a.download=nome; a.click();
+}
+
+function confirmar(titulo,texto,cb){
+  document.getElementById('modal-titulo').textContent=titulo;
+  document.getElementById('modal-texto').textContent=texto;
+  document.getElementById('modal-ok').onclick=()=>{ fecharModal(); cb(); };
+  document.getElementById('modal-confirm').classList.add('show');
+}
+function fecharModal(){ document.getElementById('modal-confirm').classList.remove('show'); }
+
+// Verificar campos obrigatórios e mostrar/ocultar botão salvar
+function verificarBotaoSalvar(){
+  const rua = document.getElementById("inp-rua").value.trim();
+  const num = document.getElementById("inp-numero").value.trim();
+  const sit = document.getElementById("inp-situacao").value;
+  const footer = document.querySelector(".footer-save");
+  if(rua && num && sit){
+    footer.classList.add("visivel");
+  } else {
+    footer.classList.remove("visivel");
+  }
+}
+
+
+// ═══════════════════════════════════════════════════
+// PWA — SERVICE WORKER
+// ═══════════════════════════════════════════════════
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(()=>console.log('Service Worker registrado!'))
+      .catch(e=>console.log('SW erro:',e));
+  });
+}
+
+// Prompt de instalação
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('btn-instalar').style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('btn-instalar').style.display='none';
+  alerta('✅ App instalado com sucesso!');
+});
+
+function instalarApp(){
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r=>{
+      if(r.outcome==='accepted') alerta('✅ Instalando o app...');
+      deferredPrompt=null;
+    });
+  }
+}
+
+// Enter no login
+document.getElementById('inp-senha').addEventListener('keydown',e=>{ if(e.key==='Enter') fazerLogin(); });
+document.getElementById("inp-numero").addEventListener("input", buscarHistoricoAgente);
+</script>
+</body>
+</html>
