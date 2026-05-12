@@ -3,7 +3,7 @@
 // Versão: 1.0
 // ═══════════════════════════════════════════════════
 
-const CACHE_NAME = 'zoonoses-jandira-v1';
+const CACHE_NAME = 'zoonoses-jandira-v2';
 const ARQUIVOS = [
   './',
   './index.html',
