@@ -304,8 +304,15 @@ html,body{height:100vh;overflow:hidden;}
 <div id="tela-login" class="tela ativa">
   <div class="lbox">
     <div class="llogo"><span class="ico">🦟</span><h1>Zoonoses Jandira</h1><p>Sistema Operacional de Campo</p></div>
-    <div class="lf"><label>Registro</label><input id="inp-reg" placeholder="Ex: AG001" autocomplete="off"/></div>
-    <div class="lf"><label>Senha</label><input id="inp-sen" type="password" placeholder="Sua senha"/></div>
+    <div class="lf">
+  <label>Nome</label>
+  <input id="inp-reg" placeholder="Digite seu nome" autocomplete="off"/>
+</div>
+
+<div class="lf">
+  <label>Registro</label>
+  <input id="inp-sen" placeholder="Digite seu registro"/>
+</div>
     <button class="lblogin" onclick="fazerLogin()">ENTRAR →</button>
     <div class="lhints"><p>Perfis de acesso</p>
       <div class="lhint">🏠 <span><b>Agente</b> — Lançamento de visitas</span></div>
