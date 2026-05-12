@@ -270,7 +270,8 @@ tr:hover td{background:#fafafa;}
 #loading-overlay p{font-size:14px;opacity:.8;margin-top:8px;}
 
 
-
+html,body{height:100vh;overflow:hidden;}
+.tela{display:none;height:100vh;}.tela.ativa{display:flex;flex-direction:column;}
 #tela-login{background:linear-gradient(135deg,#0a3d24,#198754 60%,#20c060);align-items:center;justify-content:center;padding:20px;}
 .lbox{background:#fff;width:100%;max-width:360px;padding:36px 28px;border-radius:22px;box-shadow:0 12px 40px rgba(0,0,0,.3);}
 .llogo{text-align:center;margin-bottom:24px;}.llogo .ico{font-size:52px;display:block;margin-bottom:8px;}.llogo h1{font-size:22px;font-weight:900;color:var(--verde);}.llogo p{font-size:13px;color:var(--cinza);margin-top:3px;}
@@ -291,34 +292,6 @@ tr:hover td{background:#fafafa;}
 .ct{flex:1;overflow-y:auto;background:#eef1f6;}
 .pg{display:none;padding:20px;min-height:100%;}.pg.at{display:block;}
 .pgtit{font-size:21px;font-weight:900;margin-bottom:16px;}
-
-
-
-/* CORREÇÃO DEFINITIVA DE NAVEGAÇÃO */
-html,body{
-  width:100%;
-  height:100%;
-  overflow:hidden !important;
-}
-
-.tela{
-  display:none !important;
-  position:fixed !important;
-  inset:0 !important;
-  width:100vw !important;
-  height:100vh !important;
-  overflow:hidden !important;
-}
-
-.tela.ativa{
-  display:block !important;
-}
-
-.ct{
-  flex:1;
-  overflow-y:auto !important;
-  height:100vh;
-}
 
 </style>
 </head>
@@ -1038,9 +1011,6 @@ const SC={Trabalhado:'badge-verde',Fechado:'badge-cinza',Recusa:'badge-vermelho'
 // LOGIN
 // ═══════════════════════════════════════════════════
 async function fazerLogin(){
-document.getElementById('tela-login').classList.remove('ativa');
-document.getElementById('tela-login').style.display='none';
-
   const reg = document.getElementById('inp-reg').value.trim();
   const sen = document.getElementById('inp-sen').value;
   if(!reg||!sen){alerta('⚠️ Preencha registro e senha','aviso');return;}
@@ -1586,25 +1556,19 @@ document.querySelectorAll('.tela').forEach(t=>{
 });
 
   if(u.perfil==='agente'){
-    document.getElementById('tela-agente').classList.add('ativa');
-document.getElementById('tela-agente').style.display='block';
-window.scrollTo(0,0);document.getElementById('tela-agente').style.display='block';
+    document.getElementById('tela-agente').classList.add('ativa');document.getElementById('tela-agente').style.display='block';
     document.getElementById('ag-sb-nome').textContent = u.nome;
     const dtEl = document.getElementById('dt-ag');
     if(dtEl) dtEl.value = hoje();
     if(u.area) document.getElementById('area-in').value = u.area;
     atualizarPainelAgente();
   } else if(u.perfil==='supervisor'){
-    document.getElementById('tela-sup').classList.add('ativa');
-document.getElementById('tela-sup').style.display='block';
-window.scrollTo(0,0);document.getElementById('tela-sup').style.display='block';
+    document.getElementById('tela-sup').classList.add('ativa');document.getElementById('tela-sup').style.display='block';
     document.getElementById('sup-sb-nome').textContent = u.nome;
     popularSelectAgentes();
     atualizarPainelSupervisor();
   } else {
-    document.getElementById('tela-adm').classList.add('ativa');
-document.getElementById('tela-adm').style.display='block';
-window.scrollTo(0,0);document.getElementById('tela-adm').style.display='block';
+    document.getElementById('tela-adm').classList.add('ativa');document.getElementById('tela-adm').style.display='block';
     document.getElementById('adm-sb-nome').textContent = u.nome;
     atualizarPainelAdmin();
     renderListaUsuarios();
@@ -1625,5 +1589,55 @@ function atualizarPainelAgente(){
 document.getElementById('inp-sen').addEventListener('keydown', e=>{ if(e.key==='Enter') fazerLogin(); });
 document.getElementById('inp-num') && document.getElementById('inp-num').addEventListener('input', buscarHistoricoAgente);
 </script>
+
+<script>
+
+/* CORREÇÃO FINAL DE NAVEGAÇÃO */
+
+function abrirTelaSistema(idTela){
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+  window.scrollTo(0,0);
+
+  document.querySelectorAll('.tela').forEach(el=>{
+    el.style.display='none';
+    el.classList.remove('ativa');
+  });
+
+  const tela = document.getElementById(idTela);
+
+  if(tela){
+    tela.style.display='block';
+    tela.classList.add('ativa');
+  }
+
+  document.body.style.overflow='hidden';
+}
+
+const iniciarAppOriginal = iniciarApp;
+
+iniciarApp = function(u){
+
+  usuarioAtual = u;
+
+  if(u.perfil === 'agente'){
+    abrirTelaSistema('tela-agente');
+  }
+
+  else if(u.perfil === 'supervisor'){
+    abrirTelaSistema('tela-sup');
+  }
+
+  else{
+    abrirTelaSistema('tela-adm');
+  }
+
+  try{
+    iniciarAppOriginal(u);
+  }catch(e){}
+};
+
+</script>
+
 </body>
 </html>
