@@ -1023,10 +1023,9 @@ const SC={Trabalhado:'badge-verde',Fechado:'badge-cinza',Recusa:'badge-vermelho'
 async 
 function fazerLogin(){
 
-  const u = DB.usuarios.find(x =>
-  x.nome.toLowerCase() === registro.toLowerCase() &&
-  x.registro === senha
-  );
+ const u = DB.usuarios.find(x =>
+  x.registro === registro &&
+  x.senha === senha
 
   if(!u){
     alert('Usuário inválido');
