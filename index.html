@@ -1023,12 +1023,9 @@ const SC={Trabalhado:'badge-verde',Fechado:'badge-cinza',Recusa:'badge-vermelho'
 async 
 function fazerLogin(){
 
-  const registro = document.getElementById('inp-reg').value.trim();
-  const senha = document.getElementById('inp-sen').value.trim();
-
   const u = DB.usuarios.find(x =>
-    x.registro === registro &&
-    x.senha === senha
+  x.nome.toLowerCase() === registro.toLowerCase() &&
+  x.registro === senha
   );
 
   if(!u){
