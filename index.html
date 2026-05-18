@@ -1,0 +1,2057 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#198754">
+<title>Zoonoses Jandira</title>
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+
+:root{
+  --verde:#198754;--verde2:#157347;--verde-bg:#d1e7dd;
+  --vermelho:#dc3545;--vermelho-bg:#f8d7da;
+  --amarelo:#ffc107;--amarelo-bg:#fff3cd;
+  --azul:#0d6efd;--azul-bg:#cfe2ff;
+  --cinza:#6c757d;--cinza-bg:#f8f9fa;
+  --laranja:#fd7e14;
+  --branco:#fff;--texto:#212529;--borda:#dee2e6;
+  --sb:220px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:sans-serif;background:#f0f4f8;color:var(--texto);font-size:15px;height:100vh;overflow:hidden;}
+
+/* TELAS */
+.tela{display:none;width:100%;height:100vh;}
+.tela.ativa{display:flex;flex-direction:column;}
+
+/* LOGIN */
+#tela-login{background:linear-gradient(135deg,#0f5132,#198754,#20c060);align-items:center;justify-content:center;padding:20px;}
+.lbox{background:#fff;width:100%;max-width:360px;padding:36px 28px;border-radius:22px;box-shadow:0 12px 40px rgba(0,0,0,.25);}
+.llogo{text-align:center;margin-bottom:24px;}
+.llogo .ico{font-size:50px;display:block;margin-bottom:8px;}
+.llogo h1{font-size:22px;font-weight:900;color:var(--verde);}
+.llogo p{font-size:13px;color:var(--cinza);margin-top:2px;}
+.lf{margin-bottom:14px;}
+.lf label{font-size:12px;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px;}
+.lf input{width:100%;padding:13px 14px;border:2px solid var(--borda);border-radius:10px;font-size:15px;font-family:sans-serif;}
+.lf input:focus{outline:none;border-color:var(--verde);}
+.lbtn{width:100%;padding:15px;background:var(--verde);color:#fff;border:none;border-radius:10px;font-family:sans-serif;font-size:17px;font-weight:800;cursor:pointer;margin-top:4px;}
+.lhints{margin-top:16px;background:var(--cinza-bg);border-radius:10px;padding:12px 14px;}
+.lhints p{font-size:11px;font-weight:700;color:var(--cinza);text-transform:uppercase;margin-bottom:6px;}
+.lhint{font-size:13px;color:var(--cinza);padding:3px 0;}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+.sb{width:var(--sb);min-width:var(--sb);background:#0f5132;display:flex;flex-direction:column;height:100vh;overflow-y:auto;}
+.sb-logo{padding:16px 14px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo .sico{font-size:24px;}
+.sb-logo h2{font-size:15px;font-weight:900;color:#fff;}
+.sb-logo p{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;}
+.sb-user{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:6px;}
+.sb-user .unome{font-size:13px;font-weight:700;color:#fff;}
+.sb-user .uperfil{font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;}
+.sb-sec{padding:6px 14px 3px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.8px;margin-top:4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;border-radius:8px;margin:2px 6px;font-size:14px;font-weight:600;color:rgba(255,255,255,.65);}
+.ni:hover{background:rgba(255,255,255,.1);color:#fff;}
+.ni.on{background:var(--verde);color:#fff;font-weight:800;}
+.ni .ic{font-size:17px;width:20px;text-align:center;}
+.sb-foot{margin-top:auto;padding:10px;}
+.bsair{width:100%;padding:10px;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.65);border-radius:8px;font-family:sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.bsair:hover{background:rgba(220,53,69,.4);color:#fff;}
+
+/* CONTEUDO */
+.cnt{flex:1;overflow-y:auto;background:#f0f4f8;}
+.pg{display:none;padding:20px;min-height:100%;}
+.pg.on{display:block;}
+.pgtit{font-size:20px;font-weight:900;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.ctit{font-size:15px;font-weight:800;margin-bottom:12px;}
+
+/* FORM */
+.lb{font-size:12px;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px;margin-top:10px;margin-bottom:4px;display:block;}
+.inp{width:100%;padding:10px 12px;border:2px solid var(--borda);border-radius:9px;font-size:14px;font-family:sans-serif;background:#fff;}
+.inp:focus{outline:none;border-color:var(--verde);}
+select.inp{cursor:pointer;}
+textarea.inp{resize:vertical;min-height:65px;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.g5{display:grid;grid-template-columns:3fr 1fr 1fr 1fr 1fr;gap:10px;}
+
+/* KPI */
+.kpi{background:#fff;border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.kpi h2{font-size:32px;font-weight:900;color:var(--verde);line-height:1;}
+.kpi p{font-size:11px;color:var(--cinza);margin-top:4px;font-weight:600;}
+
+/* BTN */
+.btn{width:100%;padding:12px;border:none;border-radius:10px;font-family:sans-serif;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:active{opacity:.8;}
+.bv{background:var(--verde);color:#fff;}
+.bc{background:var(--cinza-bg);color:var(--texto);border:1px solid var(--borda);}
+.ba{background:var(--azul);color:#fff;}
+.bsm{padding:6px 12px;font-size:12px;width:auto;border-radius:8px;}
+
+/* BADGE */
+.bdg{padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;display:inline-block;}
+.bv2{background:var(--verde-bg);color:var(--verde);}
+.br2{background:var(--vermelho-bg);color:var(--vermelho);}
+.ba2{background:var(--amarelo-bg);color:#856404;}
+.bc2{background:#e9ecef;color:var(--cinza);}
+.baz{background:var(--azul-bg);color:var(--azul);}
+.blo{background:#ffe5d0;color:#7c3b00;}
+
+/* TABLE */
+.tw{overflow-x:auto;}
+.tb{width:100%;border-collapse:collapse;min-width:400px;}
+.tb th{background:var(--cinza-bg);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--cinza);padding:9px 11px;text-align:left;border-bottom:2px solid var(--borda);}
+.tb td{padding:9px 11px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.tb tr:last-child td{border-bottom:none;}
+.tb tr:hover td{background:#fafafa;}
+
+/* CHECK */
+.ci{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0f0;}
+.ci:last-child{border-bottom:none;}
+.ci input[type=checkbox]{width:18px;height:18px;accent-color:var(--verde);cursor:pointer;flex-shrink:0;}
+.ci label{font-size:14px;cursor:pointer;flex:1;}
+
+/* HIST */
+.hi{background:var(--cinza-bg);border-radius:9px;padding:9px 12px;margin-bottom:7px;border-left:4px solid var(--borda);}
+.hi.hp{border-left-color:var(--vermelho);}
+.hi.hn{border-left-color:var(--verde);}
+.hi.hf{border-left-color:var(--amarelo);}
+.hd{font-size:11px;color:var(--cinza);margin-bottom:2px;}
+.hinfo{font-size:13px;font-weight:700;}
+
+/* USUARIO */
+.ui{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.ui:last-child{border-bottom:none;}
+.ui h4{font-size:14px;font-weight:700;}
+.ui p{font-size:12px;color:var(--cinza);}
+
+/* SUGESTAO */
+.sgbox{background:#fff;border:2px solid var(--verde);border-radius:9px;margin-top:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.1);}
+.sgit{padding:9px 12px;cursor:pointer;font-size:14px;border-bottom:1px solid #f0f0f0;}
+.sgit:last-child{border-bottom:none;}
+.sgit:hover{background:var(--verde-bg);}
+
+/* MISC */
+.vazio{text-align:center;padding:28px 20px;color:var(--cinza);}
+.vazio .vi{font-size:34px;margin-bottom:8px;}
+.ibox{background:var(--cinza-bg);border-radius:9px;padding:10px 13px;font-size:13px;color:var(--cinza);margin-bottom:12px;border-left:4px solid var(--verde);}
+.sep{height:1px;background:var(--borda);margin:12px 0;}
+.oc{display:none!important;}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.ov.show{display:flex;}
+.mdl{background:#fff;border-radius:18px;padding:24px;width:100%;max-width:360px;text-align:center;}
+.mdl h3{font-size:18px;font-weight:800;margin-bottom:8px;}
+.mdl p{font-size:14px;color:var(--cinza);margin-bottom:20px;}
+.mdlb{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* ALERTA */
+.af{position:fixed;top:16px;right:16px;padding:12px 18px;border-radius:10px;font-weight:700;font-size:14px;color:#fff;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);animation:slin .2s ease;max-width:300px;will-change:transform;}
+@keyframes slin{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="tela-login" class="tela ativa">
+  <div class="lbox">
+    <div class="llogo">
+      <span class="ico">🦟</span>
+      <h1>Zoonoses Jandira</h1>
+      <p>Sistema Operacional de Campo</p>
+    </div>
+    <div class="lf"><label>Registro</label><input id="inp-reg" placeholder="Ex: AG001" autocomplete="off"/></div>
+    <div class="lf"><label>Senha</label><input id="inp-sen" type="password" placeholder="Sua senha"/></div>
+    <button class="lbtn" onclick="fazerLogin()">ENTRAR →</button>
+    <div class="lhints">
+      <p>Perfis de acesso</p>
+      <div class="lhint">🏠 <b>Agente</b> — Lançamento de visitas</div>
+      <div class="lhint">👨‍💼 <b>Supervisor</b> — Supervisão e amostras</div>
+      <div class="lhint">👑 <b>Sup. Geral</b> — Painel completo</div>
+    </div>
+  </div>
+</div>
+
+<!-- AGENTE -->
+<div id="tela-agente" class="tela">
+  <div class="layout">
+    <div class="sb">
+      <div class="sb-logo"><span class="sico">🦟</span><div><h2>Zoonoses</h2><p>Jandira</p></div></div>
+      <div class="sb-user"><div class="unome" id="ag-nome">—</div><div class="uperfil">🏠 Agente de Campo</div></div>
+      <div class="sb-sec">Menu</div>
+      <div class="ni on" onclick="irPg(this,'tela-agente','pg-lanc')"><span class="ic">📋</span>Lançamento</div>
+      <div class="ni" onclick="irPg(this,'tela-agente','pg-prod')"><span class="ic">📊</span>Minha Produção</div>
+      <div class="ni" onclick="irPg(this,'tela-agente','pg-susp')"><span class="ic">🤒</span>Suspeitos</div>
+      <div class="sb-foot"><button class="bsair" onclick="sair()">⬅️ Sair</button></div>
+    </div>
+    <div class="cnt">
+
+      <!-- LANÇAMENTO -->
+      <div class="pg on" id="pg-lanc">
+        <div class="pgtit">📋 Lançamento de Imóvel</div>
+        <div class="card">
+          <div class="ctit">📍 Dados do Boletim</div>
+          <div class="g5">
+            <div><span class="lb">Atividade</span>
+              <select id="ativ" class="inp">
+                <option value="1">1 - Ponto Estratégico</option>
+                <option value="2">2 - Imóvel Especial</option>
+                <option value="5" selected>5 - Visita a Imóveis</option>
+                <option value="6">6 - Controle Criadouros</option>
+                <option value="7">7 - Nebulização</option>
+                <option value="8">8 - Aval. Larvária</option>
+                <option value="12">12 - Obras</option>
+                <option value="13">13 - Outros</option>
+              </select>
+            </div>
+            <div><span class="lb">Área</span><input id="inp-area" class="inp" placeholder="Área"/></div>
+            <div><span class="lb">Setor</span><input id="inp-setor" class="inp" placeholder="Setor"/></div>
+            <div><span class="lb">Quarteirão</span><input id="inp-quart" class="inp" placeholder="Quadra"/></div>
+            <div><span class="lb">Data</span><input id="inp-data" class="inp" readonly/></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctit">🏠 Endereço e Situação</div>
+          <div class="g4">
+            <div style="grid-column:span 2">
+              <span class="lb">Rua / Avenida *</span>
+              <input id="inp-rua" class="inp" placeholder="Nome da rua ou avenida" oninput="sugerirRua()" autocomplete="off" onchange="resetHist()"/>
+              <div id="sg-rua"></div>
+            </div>
+            <div><span class="lb">Número *</span><input id="inp-num" class="inp" inputmode="numeric" placeholder="Nº" oninput="resetHist()"/></div>
+            <div><span class="lb">Complemento</span><input id="inp-compl" class="inp" placeholder="Apto, fundos..." oninput="resetHist()"/></div>
+          </div>
+          <div class="g3" style="margin-top:10px">
+            <div>
+              <span class="lb">CAD / Ordem</span>
+              <input id="inp-cad" class="inp" placeholder="Código"/>
+            </div>
+            <div>
+              <span class="lb">Situação *</span>
+              <select id="inp-sit" class="inp" onchange="onChangeSituacao()">
+                <option value="Trabalhado">✅ Trabalhado</option>
+                <option value="Fechado">🚫 Fechado</option>
+                <option value="Recusa">❌ Recusa</option>
+                <option value="Desocupado">🏚️ Desocupado</option>
+                <option value="Temporada">🏖️ Temporada</option>
+                <option value="Parcial">⚠️ Parcial</option>
+              </select>
+            </div>
+            <div>
+              <span class="lb">Observações</span>
+              <input id="inp-obs" class="inp" placeholder="Anotações..."/>
+            </div>
+          </div>
+          <div id="bloco-hist" class="oc" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <div class="ctit">🪣 Recipientes</div>
+          <div class="g4">
+            <div><span class="lb">Grupo</span>
+              <select id="grp-rec" class="inp" onchange="carregarTipos()">
+                <option value="">— Grupo —</option>
+                <option value="A">A - Dep. Elevado</option>
+                <option value="B">B - Dep. Não Elevado</option>
+                <option value="C">C - Móveis</option>
+                <option value="D">D - Fixos</option>
+                <option value="E">E - Pneus</option>
+                <option value="F">F - Passíveis Remoção</option>
+                <option value="G">G - Naturais</option>
+              </select>
+            </div>
+            <div style="grid-column:span 2"><span class="lb">Tipo</span><select id="tip-rec" class="inp"></select></div>
+            <div><span class="lb">Qtd</span><input id="qtd-rec" type="number" inputmode="numeric" class="inp" placeholder="0" min="1"/></div>
+          </div>
+          <div class="g4" style="margin-top:8px">
+            <div>
+              <span class="lb">Contém Água?</span>
+              <select id="agua-rec" class="inp" onchange="toggleAgua()"><option>Não</option><option>Sim</option></select>
+            </div>
+            <div>
+              <span class="lb">Contém Larva?</span>
+              <select id="larva-rec" class="inp" onchange="toggleAm()"><option>Não</option><option>Sim</option></select>
+            </div>
+            <div id="bloco-am" class="oc">
+              <span class="lb">Nº Amostra</span>
+              <input id="am-rec" inputmode="numeric" class="inp" placeholder="Número"/>
+            </div>
+            <div style="display:flex;align-items:flex-end"><button class="btn ba" onclick="addRec()">➕ Adicionar</button></div>
+          </div>
+          <div class="g4" style="margin-top:8px" id="linha-qtds">
+            <div id="bloco-qtd-agua" style="display:none">
+              <span class="lb">💧 Qtd com Água</span>
+              <input id="qtd-agua" type="number" inputmode="numeric" class="inp" placeholder="0" min="1"/>
+            </div>
+            <div id="bloco-qtd-larva" style="display:none">
+              <span class="lb">🦟 Qtd com Larva</span>
+              <input id="qtd-larva" type="number" inputmode="numeric" class="inp" placeholder="0" min="1"/>
+            </div>
+          </div>
+          <div class="g4" style="margin-top:8px">
+            <div class="ci"><input type="checkbox" id="c-mec"><label for="c-mec">🔧 Mecânico</label></div>
+            <div class="ci"><input type="checkbox" id="c-foc"><label for="c-foc">💊 Focal</label></div>
+            <div class="ci"><input type="checkbox" id="c-per"><label for="c-per">💊 Perifocal</label></div>
+            <div class="ci"><input type="checkbox" id="c-neb"><label for="c-neb">💨 Nebulização</label></div>
+          </div>
+          <div class="tw" style="margin-top:10px">
+            <table class="tb"><thead><tr><th>Grupo</th><th>Tipo</th><th>Qtd</th><th>Água</th><th>Larva</th><th>Amostra</th><th>Controle</th><th></th></tr></thead><tbody id="tb-recs"></tbody></table>
+          </div>
+          <div id="rec-vazio" class="vazio" style="padding:12px"><div class="vi">🪣</div><p>Nenhum recipiente adicionado</p></div>
+        </div>
+        <div class="card">
+          <div class="g2" style="gap:12px">
+            <button class="btn bv" style="font-size:17px;padding:15px" onclick="salvarVisita()">➡️ SALVAR E PRÓXIMO IMÓVEL</button>
+            <button class="btn bc" style="font-size:15px;padding:15px;border:2px solid var(--azul);color:var(--azul)" onclick="novoQuarteirão()">🏘️ NOVO QUARTEIRÃO</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUÇÃO -->
+      <div class="pg" id="pg-prod">
+        <div class="pgtit">📊 Minha Produção do Dia</div>
+        <div class="g4" style="margin-bottom:14px">
+          <div class="kpi"><h2 id="kpi-im">0</h2><p>Imóveis</p></div>
+          <div class="kpi"><h2 id="kpi-rc">0</h2><p>Recipientes</p></div>
+          <div class="kpi"><h2 id="kpi-lv" style="color:var(--vermelho)">0</h2><p>Com Larva</p></div>
+          <div class="kpi"><h2 id="kpi-am" style="color:var(--azul)">0</h2><p>Amostras</p></div>
+        </div>
+        <div class="card">
+          <div class="ibox" id="ult-imovel">Nenhum imóvel lançado ainda.</div>
+          <div class="tw">
+            <table class="tb"><thead><tr><th>CAD</th><th>Endereço</th><th>Situação</th><th>Larva</th><th>Hora</th><th>Ações</th></tr></thead><tbody id="tb-vis"></tbody></table>
+          </div>
+          <div id="vis-vazio" class="vazio"><div class="vi">📋</div><p>Nenhum imóvel lançado hoje.</p></div>
+        </div>
+      </div>
+
+      <!-- SUSPEITOS AGENTE -->
+      <div class="pg" id="pg-susp">
+        <div class="pgtit">🤒 Notificação de Suspeito</div>
+        <div class="card">
+          <div class="ctit">📋 Notificante</div>
+          <div class="g2">
+            <div><span class="lb">Agente</span><input id="susp-agente" class="inp" placeholder="Nome do agente"/></div>
+            <div><span class="lb">Unidade</span><input id="susp-unidade" class="inp" placeholder="Unidade de saúde"/></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctit">👤 Dados do Paciente</div>
+          <div class="g4">
+            <div style="grid-column:span 3"><span class="lb">Nome Completo</span><input id="susp-nome" class="inp" placeholder="Nome do paciente"/></div>
+            <div><span class="lb">Data de Nascimento</span><input id="susp-nasc" type="date" class="inp"/></div>
+          </div>
+          <div class="g4" style="margin-top:8px">
+            <div style="grid-column:span 2"><span class="lb">CPF</span><input id="susp-cpf" class="inp" placeholder="000.000.000-00" inputmode="numeric"/></div>
+            <div style="grid-column:span 2"><span class="lb">Cartão SUS</span><input id="susp-sus" class="inp" placeholder="Número do SUS" inputmode="numeric"/></div>
+          </div>
+          <div class="g4" style="margin-top:8px">
+            <div style="grid-column:span 3"><span class="lb">Endereço</span><input id="susp-end" class="inp" placeholder="Rua / Avenida"/></div>
+            <div><span class="lb">Número</span><input id="susp-endnum" class="inp" placeholder="Nº" inputmode="numeric"/></div>
+          </div>
+          <div class="g2" style="margin-top:8px">
+            <div><span class="lb">Bairro</span><input id="susp-bairro" class="inp" placeholder="Bairro"/></div>
+            <div><span class="lb">Município</span><input id="susp-municipio" class="inp" placeholder="Município" value="Jandira"/></div>
+          </div>
+          <div class="g2" style="margin-top:8px">
+            <div><span class="lb">Telefone</span><input id="susp-tel" class="inp" placeholder="(11) 00000-0000" inputmode="numeric"/></div>
+            <div><span class="lb">Data do Registro</span><input id="susp-data" type="date" class="inp"/></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ctit">🏥 Dados Clínicos</div>
+          <div class="g2">
+            <div><span class="lb">Local de Infecção</span><input id="susp-local" class="inp" placeholder="Local provável de infecção"/></div>
+            <div><span class="lb">Data Início dos Sintomas</span><input id="susp-dt-sint" type="date" class="inp"/></div>
+          </div>
+          <div class="g2" style="margin-top:8px">
+            <div><span class="lb">Data de Coleta</span><input id="susp-dt-col" type="date" class="inp"/></div>
+          </div>
+          <div style="margin-top:8px">
+            <span class="lb">Sintomas</span>
+            <div style="background:#f8f9fa;border-radius:9px;padding:12px 14px;margin-top:4px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+              <div class="ci"><input type="checkbox" id="s1"><label for="s1">Febre alta</label></div>
+              <div class="ci"><input type="checkbox" id="s2"><label for="s2">Febre baixa</label></div>
+              <div class="ci"><input type="checkbox" id="s3"><label for="s3">Dor de cabeça</label></div>
+              <div class="ci"><input type="checkbox" id="s4"><label for="s4">Dor atrás dos olhos</label></div>
+              <div class="ci"><input type="checkbox" id="s5"><label for="s5">Dor no corpo</label></div>
+              <div class="ci"><input type="checkbox" id="s6"><label for="s6">Dor muscular</label></div>
+              <div class="ci"><input type="checkbox" id="s7"><label for="s7">Dor nas articulações</label></div>
+              <div class="ci"><input type="checkbox" id="s8"><label for="s8">Dor intensa nas articulações</label></div>
+              <div class="ci"><input type="checkbox" id="s9"><label for="s9">Inchaço nas articulações</label></div>
+              <div class="ci"><input type="checkbox" id="s10"><label for="s10">Fraqueza</label></div>
+              <div class="ci"><input type="checkbox" id="s11"><label for="s11">Cansaço</label></div>
+              <div class="ci"><input type="checkbox" id="s12"><label for="s12">Mal-estar</label></div>
+              <div class="ci"><input type="checkbox" id="s13"><label for="s13">Náuseas</label></div>
+              <div class="ci"><input type="checkbox" id="s14"><label for="s14">Vômitos</label></div>
+              <div class="ci"><input type="checkbox" id="s15"><label for="s15">Manchas vermelhas na pele</label></div>
+              <div class="ci"><input type="checkbox" id="s16"><label for="s16">Coceira</label></div>
+              <div class="ci"><input type="checkbox" id="s17"><label for="s17">Olhos vermelhos</label></div>
+              <div class="ci"><input type="checkbox" id="s18"><label for="s18">Falta de apetite</label></div>
+              <div class="ci"><input type="checkbox" id="s19"><label for="s19">Tontura</label></div>
+              <div class="ci"><input type="checkbox" id="s20"><label for="s20">Inchaço leve nas articulações</label></div>
+            </div>
+            <span class="lb" style="margin-top:10px">Outros sintomas / Observações</span>
+            <textarea id="susp-sint" class="inp" placeholder="Descreva outros sintomas não listados acima..."></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <button class="btn bv" style="font-size:17px;padding:15px" onclick="salvarSuspeito()">💾 SALVAR NOTIFICAÇÃO</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SUPERVISOR -->
+<div id="tela-supervisor" class="tela">
+  <div class="layout">
+    <div class="sb">
+      <div class="sb-logo"><span class="sico">🦟</span><div><h2>Zoonoses</h2><p>Jandira</p></div></div>
+      <div class="sb-user"><div class="unome" id="sup-nome">—</div><div class="uperfil">👨‍💼 Supervisor</div></div>
+      <div class="sb-sec">Menu</div>
+      <div class="ni on" onclick="irPg(this,'tela-supervisor','pg-seq')"><span class="ic">👥</span>Equipe</div>
+      <div class="ni" onclick="irPg(this,'tela-supervisor','pg-sam')"><span class="ic">🧪</span>Amostras</div>
+      <div class="ni" onclick="irPg(this,'tela-supervisor','pg-ssup')"><span class="ic">🔎</span>Supervisão</div>
+      <div class="ni" onclick="irPg(this,'tela-supervisor','pg-ssusp')"><span class="ic">🤒</span>Suspeitos</div>
+      <div class="sb-foot"><button class="bsair" onclick="sair()">⬅️ Sair</button></div>
+    </div>
+    <div class="cnt">
+      <div class="pg on" id="pg-seq">
+        <div class="pgtit">👥 Equipe em Campo Hoje</div>
+        <div id="sup-kpis" class="g3" style="margin-bottom:14px"></div>
+        <div class="card">
+          <div class="tw"><table class="tb"><thead><tr><th>Agente</th><th>Área</th><th>Imóveis</th><th>Amostras</th><th>Larvas</th></tr></thead><tbody id="tb-sag"></tbody></table></div>
+          <div id="sag-vazio" class="vazio oc"><div class="vi">👥</div><p>Nenhuma visita hoje.</p></div>
+        </div>
+      </div>
+      <div class="pg" id="pg-sam">
+        <div class="pgtit">🧪 Leitura de Amostras</div>
+        <div class="card">
+          <div class="ctit">⏳ Amostras Aguardando Leitura</div>
+          <div id="am-pendentes"></div>
+          <div id="am-pend-vazio" class="vazio" style="display:none"><div class="vi">✅</div><p>Todas as amostras já foram lidas!</p></div>
+        </div>
+        <div class="card">
+          <div class="ctit">✅ Amostras Concluídas</div>
+          <div class="tw"><table class="tb"><thead><tr><th>Nº</th><th>Agente</th><th>Endereço</th><th>Recipiente</th><th>Espécie</th><th>Larvas</th><th>Resultado</th></tr></thead><tbody id="tb-ams"></tbody></table></div>
+          <div id="am-vazio" class="vazio"><div class="vi">🧪</div><p>Nenhuma leitura registrada.</p></div>
+        </div>
+      </div>
+
+      <!-- MODAL LEITURA AMOSTRA -->
+      <div class="ov" id="mdl-amostra">
+        <div class="mdl" style="max-width:480px;text-align:left">
+          <h3 style="margin-bottom:4px">🧪 Registrar Leitura</h3>
+          <div id="mdl-am-info" style="background:var(--cinza-bg);border-radius:8px;padding:10px 12px;margin:12px 0;font-size:13px"></div>
+          <div class="g2">
+            <div><span class="lb">Espécie Identificada</span>
+              <select id="am-esp" class="inp"><option>Aedes aegypti</option><option>Aedes albopictus</option><option>Culex</option><option>Outros</option><option>Negativo</option></select>
+            </div>
+            <div><span class="lb">Qtd de Larvas</span>
+              <input id="am-qtd" type="number" class="inp" placeholder="0" min="0"/>
+            </div>
+          </div>
+          <div class="g2" style="margin-top:8px">
+            <div><span class="lb">Resultado</span>
+              <select id="am-res" class="inp"><option value="Positivo">✅ Positivo</option><option value="Negativo">❌ Negativo</option></select>
+            </div>
+            <div><span class="lb">Observações</span>
+              <input id="am-obs" class="inp" placeholder="Notas laboratoriais..."/>
+            </div>
+          </div>
+          <div class="g2" style="margin-top:14px">
+            <button class="btn bc" onclick="document.getElementById('mdl-amostra').classList.remove('show')">Cancelar</button>
+            <button class="btn bv" onclick="confirmarLeitura()">💾 SALVAR LEITURA</button>
+          </div>
+        </div>
+      </div>
+      <div class="pg" id="pg-ssup">
+        <div class="pgtit">🔎 Registrar Supervisão</div>
+        <div class="card">
+          <div class="g2">
+            <div><span class="lb">Agente</span><select id="ss-ag" class="inp" onchange="onChangeTipoSup()"></select></div>
+            <div><span class="lb">Tipo</span><select id="ss-tip" class="inp" onchange="onChangeTipoSup()"><option>Direta</option><option>Indireta</option></select></div>
+          </div>
+
+          <!-- BOLETIM DO AGENTE (só aparece na indireta) -->
+          <div id="bloco-boletim-ind" style="display:none;margin-top:14px">
+            <div style="background:var(--azul-bg);border-radius:10px;padding:12px 14px;margin-bottom:12px;border-left:4px solid var(--azul)">
+              <div style="font-size:12px;font-weight:700;color:var(--azul);margin-bottom:4px">📋 ÚLTIMO BOLETIM DO AGENTE</div>
+              <div id="boletim-ind-resumo" style="font-size:13px;color:var(--texto)">Selecione um agente para ver o boletim.</div>
+            </div>
+            <div id="boletim-ind-visitas"></div>
+
+            <!-- LEGENDA DOS GRUPOS -->
+            <div style="background:#f8f9fa;border-radius:8px;padding:10px 14px;margin-top:8px;border:1px solid var(--borda)">
+              <div style="font-size:11px;font-weight:700;color:var(--cinza);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">📖 Legenda dos Grupos de Recipientes</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:12px;color:var(--texto)">
+                <div><b style="color:var(--verde)">A</b> — Depósito Elevado (caixa d'água, barril)</div>
+                <div><b style="color:var(--verde)">B</b> — Depósito Não Elevado</div>
+                <div><b style="color:var(--verde)">C</b> — Móveis (vaso, prato, balde)</div>
+                <div><b style="color:var(--verde)">D</b> — Fixos (calha, laje, ralo)</div>
+                <div><b style="color:var(--verde)">E</b> — Pneus</div>
+                <div><b style="color:var(--verde)">F</b> — Passíveis de remoção (lixo, sucata)</div>
+                <div><b style="color:var(--verde)">G</b> — Naturais (bromélias, oco de árvore)</div>
+                <div style="color:var(--cinza)"><b>🦟</b> — Recipiente com larva encontrada</div>
+              </div>
+            </div>
+          </div>
+
+          <span class="lb" style="margin-top:12px">Itens Avaliados</span>
+          <div class="g2" style="margin-top:6px">
+            <div class="ci"><input type="checkbox" id="sc1"><label for="sc1">✅ Uso correto do boletim</label></div>
+            <div class="ci"><input type="checkbox" id="sc2"><label for="sc2">🔍 Pesquisa de criadouros</label></div>
+            <div class="ci"><input type="checkbox" id="sc3"><label for="sc3">🗣️ Abordagem ao morador</label></div>
+            <div class="ci"><input type="checkbox" id="sc4"><label for="sc4">⭐ Qualidade da vistoria</label></div>
+            <div class="ci"><input type="checkbox" id="sc5"><label for="sc5">📝 Preenchimento correto</label></div>
+            <div class="ci"><input type="checkbox" id="sc6"><label for="sc6">🦺 Uso de EPIs</label></div>
+          </div>
+          <span class="lb">Observações Gerais</span>
+          <textarea id="ss-obs" class="inp" placeholder="Pontos de melhoria, elogios..."></textarea>
+
+          <!-- CAMPO DIVERGÊNCIAS (só aparece na indireta) -->
+          <div id="bloco-diverg" style="display:none;margin-top:8px">
+            <span class="lb" style="color:var(--vermelho)">⚠️ Divergências Encontradas</span>
+            <textarea id="ss-diverg" class="inp" placeholder="Descreva o que foi encontrado diferente do registrado pelo agente..."></textarea>
+          </div>
+
+          <button class="btn bv" style="margin-top:14px" onclick="salvarSup()">✅ SALVAR SUPERVISÃO</button>
+        </div>
+        <div class="card">
+          <div class="ctit">📋 Supervisões Realizadas</div>
+          <div class="tw"><table class="tb"><thead><tr><th>Agente</th><th>Tipo</th><th>Itens OK</th><th>Divergências</th><th>Data</th></tr></thead><tbody id="tb-sups"></tbody></table></div>
+          <div id="sup-vazio" class="vazio"><div class="vi">🔎</div><p>Nenhuma supervisão.</p></div>
+        </div>
+      </div>
+      <!-- SUSPEITOS SUPERVISOR -->
+      <div class="pg" id="pg-ssusp">
+        <div class="pgtit">🤒 Fichas de Suspeitos</div>
+        <div id="ssusp-lista"></div>
+        <div id="ssusp-vazio" class="vazio"><div class="vi">🤒</div><p>Nenhuma notificação registrada.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="tela-admin" class="tela">
+  <div class="layout">
+    <div class="sb">
+      <div class="sb-logo"><span class="sico">🦟</span><div><h2>Zoonoses</h2><p>Jandira</p></div></div>
+      <div class="sb-user"><div class="unome" id="adm-nome">—</div><div class="uperfil">👑 Supervisor Geral</div></div>
+      <div class="sb-sec">Painel</div>
+      <div class="ni on" onclick="irPg(this,'tela-admin','pg-apainel')"><span class="ic">📊</span>Painel Geral</div>
+      <div class="ni" onclick="irPg(this,'tela-admin','pg-aagentes')"><span class="ic">👥</span>Agentes</div>
+      <div class="ni" onclick="irPg(this,'tela-admin','pg-aepi')"><span class="ic">🦟</span>Epidemiologia</div>
+      <div class="sb-sec">Gestão</div>
+      <div class="ni" onclick="irPg(this,'tela-admin','pg-acad')"><span class="ic">⚙️</span>Cadastros</div>
+      <div class="ni" onclick="irPg(this,'tela-admin','pg-aexp')"><span class="ic">📤</span>Exportar</div>
+      <div class="ni" onclick="irPg(this,'tela-admin','pg-asusp')"><span class="ic">🤒</span>Suspeitos</div>
+      <div class="sb-foot"><button class="bsair" onclick="sair()">⬅️ Sair</button></div>
+    </div>
+    <div class="cnt">
+      <div class="pg" id="pg-asusp">
+        <div class="pgtit">🤒 Notificações de Suspeitos</div>
+        <div id="asusp-lista"></div>
+        <div id="asusp-vazio" class="vazio"><div class="vi">🤒</div><p>Nenhuma notificação registrada.</p></div>
+      </div>
+
+      <div class="pg on" id="pg-apainel">
+        <div class="pgtit">📊 Painel Geral</div>
+        <div id="adm-kpis" class="g4" style="margin-bottom:14px"></div>
+        <div class="g2">
+          <div class="card"><div class="ctit">🚨 Alertas</div><div id="adm-alertas"></div></div>
+          <div class="card">
+            <div class="ctit">👨‍💼 Supervisores</div>
+            <div class="tw"><table class="tb"><thead><tr><th>Supervisor</th><th>Supervisões</th><th>Agentes</th><th>Última</th></tr></thead><tbody id="tb-sprod"></tbody></table></div>
+            <div id="sprod-vazio" class="vazio oc"><div class="vi">👨‍💼</div><p>Nenhuma supervisão.</p></div>
+          </div>
+        </div>
+      </div>
+      <div class="pg" id="pg-aagentes">
+        <div class="pgtit">👥 Produção por Agente</div>
+        <div id="adm-ag-kpis" class="g3" style="margin-bottom:14px"></div>
+        <div class="card">
+          <div class="tw"><table class="tb"><thead><tr><th>Agente</th><th>Área</th><th>Imóveis</th><th>Rec.</th><th>Larvas</th><th>Amostras</th><th>Pendências</th></tr></thead><tbody id="tb-aag"></tbody></table></div>
+          <div id="aag-vazio" class="vazio oc"><div class="vi">👥</div><p>Nenhuma visita.</p></div>
+        </div>
+      </div>
+      <div class="pg" id="pg-aepi">
+        <div class="pgtit">🦟 Controle Epidemiológico</div>
+        <div class="card">
+          <div class="ctit">Por Área — IIP</div>
+          <div class="tw"><table class="tb"><thead><tr><th>Área</th><th>Imóveis</th><th>Focos</th><th>Amostras</th><th>Positivos</th><th>IIP*</th></tr></thead><tbody id="tb-epi"></tbody></table></div>
+          <p style="font-size:11px;color:var(--cinza);margin-top:6px">* IIP = Focos / Imóveis × 100</p>
+        </div>
+        <div class="card">
+          <div class="ctit">🪣 Recipientes Predominantes</div>
+          <div class="tw"><table class="tb"><thead><tr><th>Grupo</th><th>Tipo</th><th>Qtd</th><th>Com Larva</th></tr></thead><tbody id="tb-repi"></tbody></table></div>
+        </div>
+      </div>
+      <div class="pg" id="pg-acad">
+        <div class="pgtit">⚙️ Cadastro de Usuários</div>
+        <div class="card">
+          <div class="ctit">➕ Novo Usuário</div>
+          <div class="g4">
+            <div style="grid-column:span 2"><span class="lb">Nome Completo</span><input id="cad-nome" class="inp" placeholder="Nome completo"/></div>
+            <div><span class="lb">Registro</span><input id="cad-reg" class="inp" placeholder="Ex: AG005"/></div>
+            <div><span class="lb">Senha</span><input id="cad-sen" type="password" class="inp" placeholder="Senha"/></div>
+          </div>
+          <div class="g4" style="margin-top:8px">
+            <div><span class="lb">Perfil</span><select id="cad-perf" class="inp"><option value="agente">Agente</option><option value="supervisor">Supervisor</option></select></div>
+            <div><span class="lb">Área</span><input id="cad-area" class="inp" placeholder="Ex: Norte, 3..."/></div>
+            <div style="grid-column:span 2"><span class="lb">Supervisor Responsável</span><select id="cad-sup" class="inp"></select></div>
+          </div>
+          <button class="btn bv" style="margin-top:12px" onclick="cadastrar()">✅ CADASTRAR</button>
+        </div>
+        <div class="card"><div class="ctit">👥 Usuários Cadastrados</div><div id="lista-usr"></div></div>
+      </div>
+      <div class="pg" id="pg-aexp">
+        <div class="pgtit">📤 Exportar Dados</div>
+
+        <!-- RESUMO -->
+        <div class="card">
+          <div class="ctit">📊 Resumo Geral</div>
+          <div id="res-exp"></div>
+        </div>
+
+        <!-- EXPORTAR BOLETINS POR PERÍODO -->
+        <div class="card">
+          <div class="ctit">📋 Exportar Boletins por Quarteirão</div>
+          <p style="font-size:13px;color:var(--cinza);margin-bottom:12px">Gera uma planilha Excel com uma aba por quarteirão. Cada linha representa um recipiente.</p>
+          <div class="g3" style="margin-bottom:12px">
+            <div>
+              <span class="lb">Data Início</span>
+              <input type="date" id="exp-dt-ini" class="inp"/>
+            </div>
+            <div>
+              <span class="lb">Data Fim</span>
+              <input type="date" id="exp-dt-fim" class="inp"/>
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn bv" onclick="expBoletins()">📊 EXPORTAR BOLETINS</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPORTAR PANORAMA EPIDEMIOLÓGICO -->
+        <div class="card">
+          <div class="ctit">🦟 Exportar Panorama Epidemiológico</div>
+          <p style="font-size:13px;color:var(--cinza);margin-bottom:12px">Planilha com ranking de recipientes, áreas de risco, suspeitos por bairro e resumo geral. Ideal para montar dashboard.</p>
+          <div class="g3" style="margin-bottom:12px">
+            <div>
+              <span class="lb">Data Início</span>
+              <input type="date" id="epi-dt-ini" class="inp"/>
+            </div>
+            <div>
+              <span class="lb">Data Fim</span>
+              <input type="date" id="epi-dt-fim" class="inp"/>
+            </div>
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn ba" onclick="expPanorama()">📈 EXPORTAR PANORAMA</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EXPORTAR TXT (Sisaweb) -->
+        <div class="card">
+          <div class="ctit">📄 Relatório TXT (Sisaweb)</div>
+          <p style="font-size:13px;color:var(--cinza);margin-bottom:12px">Relatório em texto simples para lançamento manual no Sisaweb.</p>
+          <button class="btn bc" style="border:2px solid var(--azul);color:var(--azul)" onclick="expTXT()">📄 EXPORTAR TXT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PÁGINA SUSPEITOS ADMIN (inserida via JS no cnt do admin) -->
+
+<!-- MODAL IMPRIMIR SUSPEITO -->
+<div class="ov" id="mdl-imprimir">
+  <div class="mdl" style="max-width:700px;width:95%;text-align:left;max-height:90vh;overflow-y:auto;padding:0">
+    <div id="ficha-impressao"></div>
+    <div style="padding:16px;display:flex;gap:10px;border-top:1px solid var(--borda)">
+      <button class="btn bc" style="flex:1" onclick="document.getElementById('mdl-imprimir').classList.remove('show')">✕ Fechar</button>
+      <button class="btn bv" style="flex:2" onclick="imprimirFicha()">🖨️ IMPRIMIR FICHA</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR USUÁRIO -->
+<div class="ov" id="mdl-editar-usr">
+  <div class="mdl" style="max-width:500px;text-align:left">
+    <h3 style="margin-bottom:16px">✏️ Editar Usuário</h3>
+    <input type="hidden" id="edit-idx"/>
+    <div class="g2">
+      <div style="grid-column:span 2">
+        <span class="lb">Nome Completo</span>
+        <input id="edit-nome" class="inp" placeholder="Nome completo"/>
+      </div>
+      <div>
+        <span class="lb">Registro</span>
+        <input id="edit-reg" class="inp" placeholder="Ex: AG005"/>
+      </div>
+      <div>
+        <span class="lb">Nova Senha</span>
+        <input id="edit-sen" type="password" class="inp" placeholder="Deixe em branco para manter"/>
+      </div>
+    </div>
+    <div class="g2" style="margin-top:8px">
+      <div>
+        <span class="lb">Perfil</span>
+        <select id="edit-perf" class="inp">
+          <option value="agente">Agente</option>
+          <option value="supervisor">Supervisor</option>
+        </select>
+      </div>
+      <div>
+        <span class="lb">Área</span>
+        <input id="edit-area" class="inp" placeholder="Ex: Norte, 3..."/>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <span class="lb">Supervisor Responsável</span>
+      <select id="edit-sup" class="inp"></select>
+    </div>
+    <div class="g2" style="margin-top:16px">
+      <button class="btn bc" onclick="document.getElementById('mdl-editar-usr').classList.remove('show')">Cancelar</button>
+      <button class="btn bv" onclick="salvarEdicao()">✅ SALVAR ALTERAÇÕES</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL BOLETIM AGENTE -->
+<div class="ov" id="mdl-boletim">
+  <div class="mdl" style="max-width:800px;width:95%;text-align:left;max-height:90vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="font-size:18px;font-weight:900" id="mdl-bol-titulo">Boletim do Agente</h3>
+      <button class="btn bc bsm" onclick="document.getElementById('mdl-boletim').classList.remove('show')">✕ Fechar</button>
+    </div>
+    <div id="mdl-bol-conteudo"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="mdl-confirm">
+  <div class="mdl">
+    <h3 id="mdl-tit"></h3><p id="mdl-txt"></p>
+    <div class="mdlb">
+      <button class="btn bc bsm" style="width:100%" onclick="fecharMdl()">Cancelar</button>
+      <button class="btn bv bsm" style="width:100%" id="mdl-ok">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════ SUPABASE ═══════════════════════════
+const SURL='https://gdttrjejjchaqekldnme.supabase.co';
+const SKEY='sb_publishable_4BT_JXlr3X4NvSSr22u9Bg_QHSWsz2t';
+const db=supabase.createClient(SURL,SKEY);
+const SK='zj_v5';
+
+function ldLocal(){const r=localStorage.getItem(SK);if(r)return JSON.parse(r);return{usuarios:[{nome:'Vantuir',registro:'ADM01',senha:'admin123',perfil:'supervisor_geral',area:'',supervisor:''}],visitas:[],amostras:[],supervisoes:[],suspeitos:[]};}
+function svLocal(){localStorage.setItem(SK,JSON.stringify(D));}
+
+// ── LOGRADOUROS DE JANDIRA ──
+const LOG_KEY='zj_logradouros';
+let LOGRADOUROS=[];
+
+function carregarLogradouros(){
+  try{ LOGRADOUROS=JSON.parse(localStorage.getItem(LOG_KEY)||'[]'); }catch(e){ LOGRADOUROS=[]; }
+}
+
+async function baixarLogradouros(){
+  if(!navigator.onLine) return;
+  const ultimoBaixar=localStorage.getItem(LOG_KEY+'_data');
+  const hoje=new Date().toISOString().slice(0,10);
+  if(ultimoBaixar===hoje && LOGRADOUROS.length>0){
+    console.log('[Logradouros] Já atualizados hoje — '+LOGRADOUROS.length+' registros.');
+    return;
+  }
+  console.log('[Logradouros] Baixando logradouros de Jandira...');
+  mostrarProgressoLog(true,'Baixando logradouros de Jandira...');
+  await baixarPorJSONP();
+}
+
+function baixarPorJSONP(){
+  return new Promise((resolve)=>{
+    mostrarProgressoLog(true,'Carregando endereços de Jandira...');
+    const callbackName='viacep_cb_'+Date.now();
+    let concluido=false;
+
+    window[callbackName]=function(dados){
+      concluido=true;
+      delete window[callbackName];
+      document.getElementById('script-viacep')?.remove();
+
+      if(Array.isArray(dados)&&dados.length>0){
+        const vistos=new Set();
+        LOGRADOUROS=dados.map(d=>({
+          rua:d.logradouro||'',
+          bairro:d.bairro||'',
+          cep:d.cep||''
+        })).filter(d=>{
+          if(!d.rua) return false;
+          const k=d.rua.toLowerCase();
+          if(vistos.has(k)) return false;
+          vistos.add(k); return true;
+        });
+        localStorage.setItem(LOG_KEY,JSON.stringify(LOGRADOUROS));
+        localStorage.setItem(LOG_KEY+'_data',new Date().toISOString().slice(0,10));
+        console.log('[Logradouros] '+LOGRADOUROS.length+' logradouros carregados!');
+        mostrarProgressoLog(false);
+        alerta('✅ '+LOGRADOUROS.length+' logradouros de Jandira carregados!');
+      } else {
+        console.warn('[Logradouros] Nenhum dado retornado');
+        mostrarProgressoLog(false);
+      }
+      resolve();
+    };
+
+    // Timeout de 15 segundos
+    setTimeout(()=>{
+      if(!concluido){
+        delete window[callbackName];
+        document.getElementById('script-viacep')?.remove();
+        console.warn('[Logradouros] Timeout ao carregar');
+        mostrarProgressoLog(false);
+        resolve();
+      }
+    },15000);
+
+    const s=document.createElement('script');
+    s.id='script-viacep';
+    s.src='https://viacep.com.br/ws/SP/Jandira/a/json/?callback='+callbackName;
+    s.onerror=()=>{
+      if(!concluido){
+        concluido=true;
+        delete window[callbackName];
+        console.warn('[Logradouros] Erro ao carregar script JSONP');
+        mostrarProgressoLog(false);
+        resolve();
+      }
+    };
+    document.head.appendChild(s);
+  });
+}
+
+function mostrarProgressoLog(show, msg=''){
+  let el=document.getElementById('prog-log');
+  if(!el){
+    el=document.createElement('div');
+    el.id='prog-log';
+    el.style.cssText="position:fixed;bottom:60px;right:16px;background:#0d6efd;color:white;padding:10px 16px;border-radius:10px;font-family:sans-serif;font-size:13px;font-weight:700;z-index:9998;box-shadow:0 2px 8px rgba(0,0,0,.2)";
+    document.body.appendChild(el);
+  }
+  if(show){ el.style.display='block'; el.textContent='⬇️ '+msg; }
+  else el.style.display='none';
+}
+
+// Baixar ao conectar e ao carregar
+window.addEventListener('online',()=>{ baixarLogradouros(); });
+carregarLogradouros();
+
+// ── FILA OFFLINE ──
+const FILA_KEY='zj_fila_sync';
+
+function carregarFila(){
+  try{ return JSON.parse(localStorage.getItem(FILA_KEY)||'[]'); }catch(e){ return []; }
+}
+function salvarFila(fila){ localStorage.setItem(FILA_KEY,JSON.stringify(fila)); }
+
+function adicionarFila(tipo, dados){
+  const fila=carregarFila();
+  // Evitar duplicatas pelo id
+  const idx=fila.findIndex(f=>f.tipo===tipo && f.dados.id===dados.id);
+  if(idx>=0) fila[idx]={tipo,dados}; // Atualizar se já existe
+  else fila.push({tipo,dados});
+  salvarFila(fila);
+}
+
+async function processarFila(){
+  if(!navigator.onLine) return;
+  const fila=carregarFila();
+  if(!fila.length) return;
+
+  console.log(`[Sync] Processando ${fila.length} item(s) pendente(s)...`);
+  const pendentes=[...fila];
+  const sucesso=[];
+
+  for(const item of pendentes){
+    try{
+      if(item.tipo==='visita') await syncVisita(item.dados);
+      else if(item.tipo==='amostra') await syncAmostra(item.dados);
+      else if(item.tipo==='supervisao') await syncSup(item.dados);
+      else if(item.tipo==='suspeito') await syncSuspeito(item.dados);
+      else if(item.tipo==='usuario') await syncUser(item.dados);
+      sucesso.push(item);
+    }catch(e){
+      console.warn('[Sync] Falhou:',item.tipo, e);
+    }
+  }
+
+  // Remover da fila os que sincronizaram com sucesso
+  if(sucesso.length){
+    const filaAtual=carregarFila();
+    const novaFila=filaAtual.filter(f=>!sucesso.find(s=>s.tipo===f.tipo&&s.dados.id===f.dados.id));
+    salvarFila(novaFila);
+    if(sucesso.length>0){
+      mostrarIndicadorSync(sucesso.length);
+      console.log(`[Sync] ${sucesso.length} item(s) sincronizado(s) com sucesso!`);
+    }
+  }
+}
+
+function mostrarIndicadorSync(qtd){
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;bottom:20px;right:20px;background:#198754;color:white;padding:10px 16px;border-radius:10px;font-family:sans-serif;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);animation:slin .3s ease';
+  el.textContent='☁️ '+qtd+' registro(s) sincronizado(s)!';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// Monitorar reconexão com internet
+window.addEventListener('online',()=>{
+  console.log('[Sync] Conexão restaurada — sincronizando fila...');
+  processarFila();
+});
+
+// Verificar fila periodicamente (a cada 30 segundos)
+setInterval(()=>{ if(navigator.onLine) processarFila(); }, 30000);
+
+// Indicador de status offline na tela
+function atualizarStatusOnline(){
+  let bar=document.getElementById('offline-bar');
+  if(!navigator.onLine){
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='offline-bar';
+      bar.style.cssText='position:fixed;top:0;left:0;right:0;background:#ffc107;color:#000;text-align:center;padding:6px;font-family:sans-serif;font-size:13px;font-weight:700;z-index:9998';
+      bar.textContent='📴 Sem internet — dados sendo salvos localmente';
+      document.body.appendChild(bar);
+    }
+  } else {
+    if(bar) bar.remove();
+  }
+}
+window.addEventListener('online', atualizarStatusOnline);
+window.addEventListener('offline', atualizarStatusOnline);
+window.addEventListener('load', atualizarStatusOnline);
+
+let D=ldLocal(), U=null, RECS=[];
+
+// Tipos de recipientes
+const TREC={A:["1-Ligado à rede","2-Não ligado à rede"],B:["3-Ligado à rede","4-Não ligado à rede"],C:["5-Vaso c/ planta","6-Vasos diversos","7-Prato/pingadeira","8-Consumo animal","9-Dep. construção","10-Hortifruti","11-Piscina desmontável","12-Lata/plástico","13-Garrafas","14-Balde/regador","15-Bandeja geladeira","16-Mat. construção","17-Outros"],D:["18-Ralo interno","19-Ralo externo","20-Laje","21-Calha","22-Sanitário","23-Piscina","24-Dep. construção","25-Hortifruti","26-Consumo animal","27-Outros"],E:["28-Pneu","29-Outros correlatos"],F:["30-Lata/frascos","31-Garrafa descartável","32-Lona/plástico","33-Entulho","34-Peças/sucatas","35-Masseira","36-Barco","37-Outros"],G:["38-Oco árvore/bambu","39-Bromélias","40-Outros"]};
+
+// ═══════════════════════════ SUPABASE SYNC ═══════════════════════════
+async function syncVisita(v){
+  if(!navigator.onLine){ adicionarFila('visita',v); return; }
+  try{
+    await db.from('visitas').upsert({id_local:v.id.toString(),cad:v.cad||'',rua:v.rua,numero:v.numero,complemento:v.compl||'',situacao:v.situacao,atividade:v.ativ||'',area:v.area||'',setor:v.setor||'',quart:v.quart||'',recipientes:JSON.stringify(v.recs),rec_total:v.recs.length,rec_larva:v.recs.filter(r=>r.larva==='Sim').length,observacoes:v.obs||'',agente_reg:v.agente,agente_nome:v.agenteNome,data_visita:v.data,hora_visita:v.hora,sincronizado:true});
+  }catch(e){ adicionarFila('visita',v); }
+}
+async function syncAmostra(a){
+  if(!navigator.onLine){ adicionarFila('amostra',a); return; }
+  try{
+    await db.from('amostras').upsert({id_local:a.id.toString(),agente_reg:a.agente,agente_nome:a.agenteNome,numero:a.numero,especie:a.especie,qtd_larvas:parseInt(a.qtd)||0,resultado:a.resultado,observacoes:a.obs||'',supervisor_reg:a.supervisor,data_leitura:a.data});
+  }catch(e){ adicionarFila('amostra',a); }
+}
+async function syncSup(s){
+  if(!navigator.onLine){ adicionarFila('supervisao',s); return; }
+  try{
+    await db.from('supervisoes').upsert({id_local:s.id.toString(),agente_reg:s.agente,agente_nome:s.agenteNome,tipo:s.tipo,itens_ok:s.itensOk,total_itens:6,observacoes:s.obs||'',supervisor_reg:s.supervisor,supervisor_nome:s.supNome,data_supervisao:s.data});
+  }catch(e){ adicionarFila('supervisao',s); }
+}
+async function syncUser(u){
+  if(!navigator.onLine){ adicionarFila('usuario',u); return; }
+  try{
+    await db.from('usuarios').upsert({registro:u.registro,nome:u.nome,senha:u.senha,perfil:u.perfil,area:u.area||'',supervisor_reg:u.supervisor||''});
+  }catch(e){ adicionarFila('usuario',u); }
+}
+async function syncSuspeito(s){
+  if(!navigator.onLine){ adicionarFila('suspeito',s); return; }
+  try{
+    await db.from('suspeitos').upsert({id_local:s.id.toString(),agente_reg:s.agenteReg,agente_nome:s.agente,unidade:s.unidade||'',nome:s.nome,nasc:s.nasc||'',cpf:s.cpf||'',sus:s.sus||'',endereco:s.end||'',numero:s.endnum||'',bairro:s.bairro||'',municipio:s.municipio||'',telefone:s.tel||'',local_infeccao:s.local||'',dt_sintomas:s.dtSint||'',dt_coleta:s.dtCol||'',sintomas_check:JSON.stringify(s.sintsCheck||[]),sintomas:s.sint||'',data_registro:s.data});
+  }catch(e){ adicionarFila('suspeito',s); }
+}
+
+async function carregarDB(){
+  try{
+    loading(true);
+    const{data:us}=await db.from('usuarios').select('*');
+    if(us&&us.length)D.usuarios=us.map(u=>({nome:u.nome,registro:u.registro,senha:u.senha,perfil:u.perfil,area:u.area||'',supervisor:u.supervisor_reg||''}));
+    const{data:vs}=await db.from('visitas').select('*').order('data_visita',{ascending:false});
+    if(vs)D.visitas=vs.map(v=>({id:parseInt(v.id_local)||Date.now(),cad:v.cad,rua:v.rua,numero:v.numero,compl:v.complemento,situacao:v.situacao,ativ:v.atividade,area:v.area,setor:v.setor,quart:v.quart,recs:typeof v.recipientes==='string'?JSON.parse(v.recipientes):v.recipientes||[],obs:v.observacoes,agente:v.agente_reg,agenteNome:v.agente_nome,data:v.data_visita,hora:v.hora_visita}));
+    const{data:as}=await db.from('amostras').select('*').order('data_leitura',{ascending:false});
+    if(as)D.amostras=as.map(a=>({id:parseInt(a.id_local)||Date.now(),agente:a.agente_reg,agenteNome:a.agente_nome,numero:a.numero,especie:a.especie,qtd:a.qtd_larvas,resultado:a.resultado,obs:a.observacoes,supervisor:a.supervisor_reg,data:a.data_leitura}));
+    const{data:ss}=await db.from('supervisoes').select('*').order('data_supervisao',{ascending:false});
+    if(ss)D.supervisoes=ss.map(s=>({id:parseInt(s.id_local)||Date.now(),agente:s.agente_reg,agenteNome:s.agente_nome,tipo:s.tipo,itensOk:s.itens_ok,obs:s.observacoes,supervisor:s.supervisor_reg,supNome:s.supervisor_nome,data:s.data_supervisao}));
+    // Suspeitos
+    const{data:susps}=await db.from('suspeitos').select('*').order('data_registro',{ascending:false});
+    if(susps)D.suspeitos=susps.map(s=>({id:parseInt(s.id_local)||Date.now(),agenteReg:s.agente_reg,agente:s.agente_nome,unidade:s.unidade,nome:s.nome,nasc:s.nasc,cpf:s.cpf,sus:s.sus,end:s.endereco,endnum:s.numero,bairro:s.bairro,municipio:s.municipio,tel:s.telefone,local:s.local_infeccao,dtSint:s.dt_sintomas,dtCol:s.dt_coleta,sint:s.sintomas,data:s.data_registro}));
+    svLocal();
+    loading(false);
+  }catch(e){loading(false);}
+}
+
+function loading(show){
+  let el=document.getElementById('ld');
+  if(!el){el=document.createElement('div');el.id='ld';el.style.cssText='position:fixed;inset:0;background:rgba(25,135,84,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;font-family:sans-serif;';el.innerHTML='<div style="font-size:48px;margin-bottom:14px">🦟</div><div style="font-size:19px;font-weight:800">Zoonoses Jandira</div><div style="font-size:13px;margin-top:6px;opacity:.8">Sincronizando dados...</div>';document.body.appendChild(el);}
+  el.style.display=show?'flex':'none';
+}
+
+window.addEventListener('load',()=>{ carregarDB(); setTimeout(processarFila,3000); setTimeout(baixarLogradouros,5000); });
+
+// ═══════════════════════════ NAVEGAÇÃO ═══════════════════════════
+function irPg(btn,telaId,pgId){
+  document.querySelectorAll('#'+telaId+' .ni').forEach(n=>n.classList.remove('on'));
+  btn.classList.add('on');
+  // Ocultar apenas páginas diretas do cnt desta tela
+  const cnt = document.querySelector('#'+telaId+' .cnt');
+  if(cnt) cnt.querySelectorAll(':scope > .pg').forEach(p=>p.classList.remove('on'));
+  document.getElementById(pgId).classList.add('on');
+  const ats={'pg-prod':painelAgente,'pg-seq':painelSup,'pg-sam':()=>{renderAms();},'pg-ssup':renderSups,'pg-susp':prepararFormSusp,'pg-ssusp':renderSuspSup,'pg-apainel':painelAdm,'pg-aagentes':renderAdmAg,'pg-aepi':renderEpi,'pg-acad':()=>{renderUsrs();popularCadSup();},'pg-aexp':renderExp,'pg-asusp':renderSuspAdm};
+  if(ats[pgId])ats[pgId]();
+}
+
+// ═══════════════════════════ LOGIN ═══════════════════════════
+async function fazerLogin(){
+  const reg=document.getElementById('inp-reg').value.trim();
+  const sen=document.getElementById('inp-sen').value;
+  if(!reg||!sen){alerta('⚠️ Preencha registro e senha','av');return;}
+  loading(true);
+  try{
+    const{data,error}=await db.from('usuarios').select('*').ilike('registro',reg).eq('senha',sen).single();
+    loading(false);
+    if(!error&&data){
+      const u={nome:data.nome,registro:data.registro,senha:data.senha,perfil:data.perfil,area:data.area||'',supervisor:data.supervisor_reg||''};
+      const i=D.usuarios.findIndex(x=>x.registro.toUpperCase()===reg.toUpperCase());
+      if(i>=0)D.usuarios[i]=u;else D.usuarios.push(u);
+      svLocal(); entrar(u);
+    } else {
+      const u=D.usuarios.find(x=>x.registro.toUpperCase()===reg.toUpperCase()&&x.senha===sen);
+      if(!u){alerta('❌ Registro ou senha inválidos','er');return;}
+      entrar(u);
+    }
+  }catch(e){
+    loading(false);
+    const u=D.usuarios.find(x=>x.registro.toUpperCase()===reg.toUpperCase()&&x.senha===sen);
+    if(!u){alerta('❌ Registro ou senha inválidos','er');return;}
+    entrar(u);
+  }
+}
+
+function entrar(u){
+  U=u;
+  carregarDB();
+  document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
+  if(u.perfil==='agente'){
+    document.getElementById('tela-agente').classList.add('ativa');
+    document.getElementById('ag-nome').textContent=u.nome;
+    document.getElementById('inp-data').value=hoje();
+    if(u.area)document.getElementById('inp-area').value=u.area;
+    painelAgente();
+  }else if(u.perfil==='supervisor'){
+    document.getElementById('tela-supervisor').classList.add('ativa');
+    document.getElementById('sup-nome').textContent=u.nome;
+    popularSels();
+    painelSup();
+  }else{
+    document.getElementById('tela-admin').classList.add('ativa');
+    document.getElementById('adm-nome').textContent=u.nome;
+    painelAdm();
+    renderUsrs();
+    popularCadSup();
+  }
+}
+
+function sair(){
+  confirmar('Sair do sistema?','Seus dados permanecem salvos.',()=>{
+    U=null;RECS=[];
+    document.querySelectorAll('.tela').forEach(t=>t.classList.remove('ativa'));
+    document.getElementById('tela-login').classList.add('ativa');
+    document.getElementById('inp-sen').value='';
+  });
+}
+
+// ═══════════════════════════ AGENTE ═══════════════════════════
+function carregarTipos(){const g=document.getElementById('grp-rec').value;const s=document.getElementById('tip-rec');s.innerHTML='';if(!g)return;TREC[g].forEach(t=>s.innerHTML+=`<option>${t}</option>`);}
+function toggleAgua(){
+  const v=document.getElementById('agua-rec').value;
+  document.getElementById('bloco-qtd-agua').style.display=v==='Sim'?'block':'none';
+  if(v!=='Sim') document.getElementById('qtd-agua').value='';
+}
+function toggleAm(){
+  const v=document.getElementById('larva-rec').value;
+  document.getElementById('bloco-am').classList.toggle('oc',v!=='Sim');
+  document.getElementById('bloco-qtd-larva').style.display=v==='Sim'?'block':'none';
+  if(v!=='Sim'){document.getElementById('am-rec').value='';document.getElementById('qtd-larva').value='';}
+}
+
+function addRec(){
+  const g=document.getElementById('grp-rec').value;
+  const q=document.getElementById('qtd-rec').value;
+  if(!g){alerta('⚠️ Selecione o grupo','av');return;}
+  if(!q||q<1){alerta('⚠️ Informe a quantidade','av');return;}
+  const agV=document.getElementById('agua-rec').value;
+  const lvV=document.getElementById('larva-rec').value;
+  RECS.push({
+    grupo:g,
+    tipo:document.getElementById('tip-rec').value,
+    qtd:parseInt(q),
+    agua:agV,
+    qtdAgua:agV==='Sim'?parseInt(document.getElementById('qtd-agua').value)||0:0,
+    larva:lvV,
+    qtdLarva:lvV==='Sim'?parseInt(document.getElementById('qtd-larva').value)||0:0,
+    amostra:document.getElementById('am-rec').value,
+    mecanico:document.getElementById('c-mec').checked,
+    focal:document.getElementById('c-foc').checked,
+    perifocal:document.getElementById('c-per').checked,
+    nebulizacao:document.getElementById('c-neb').checked
+  });
+  renderRecs();
+  document.getElementById('grp-rec').selectedIndex=0;document.getElementById('tip-rec').innerHTML='';document.getElementById('qtd-rec').value='';document.getElementById('agua-rec').selectedIndex=0;document.getElementById('qtd-agua').value='';document.getElementById('bloco-qtd-agua').style.display='none';document.getElementById('larva-rec').selectedIndex=0;document.getElementById('qtd-larva').value='';document.getElementById('bloco-qtd-larva').style.display='none';document.getElementById('am-rec').value='';document.getElementById('bloco-am').classList.add('oc');['c-mec','c-foc','c-per','c-neb'].forEach(id=>document.getElementById(id).checked=false);
+}
+
+function renderRecs(){
+  const tb=document.getElementById('tb-recs');const vz=document.getElementById('rec-vazio');
+  tb.innerHTML='';if(!RECS.length){vz.style.display='';return;}vz.style.display='none';
+  RECS.forEach((r,i)=>{const c=[];if(r.mecanico)c.push('Mec');if(r.focal)c.push('Foc');if(r.perifocal)c.push('Per');if(r.nebulizacao)c.push('Neb');tb.innerHTML+=`<tr><td>${r.grupo}</td><td style="font-size:12px">${r.tipo}</td><td>${r.qtd}</td><td>${r.agua==='Sim'?`<span class="bdg baz">${r.qtdAgua||0}</span>`:'<span class="bdg bc2">Não</span>'}</td><td>${r.larva==='Sim'?`<span class="bdg br2">${r.qtdLarva||0}</span>`:'<span class="bdg bv2">Não</span>'}</td><td>${r.amostra||'—'}</td><td style="font-size:12px">${c.join(',')||'—'}</td><td><button class="btn bc bsm" onclick="delRec(${i})">🗑</button></td></tr>`;});
+}
+function delRec(i){RECS.splice(i,1);renderRecs();}
+
+function salvarVisita(){
+  const rua=document.getElementById('inp-rua').value.trim();
+  const num=document.getElementById('inp-num').value.trim();
+  if(!rua){alerta('❌ Informe a rua','er');return;}
+  if(!num){alerta('❌ Informe o número','er');return;}
+  const lsAm=RECS.some(r=>r.larva==='Sim'&&!r.amostra);
+  if(lsAm){confirmar('Larva sem amostra','Continuar mesmo assim?',()=>_gravar());return;}
+  _gravar();
+}
+
+function _gravar(){
+  const v={
+    id:Date.now(),
+    cad:document.getElementById('inp-cad').value.trim(),
+    rua:document.getElementById('inp-rua').value.trim(),
+    numero:document.getElementById('inp-num').value.trim(),
+    compl:document.getElementById('inp-compl').value.trim(),
+    situacao:document.getElementById('inp-sit').value,
+    obs:document.getElementById('inp-obs').value.trim(),
+    ativ:document.getElementById('ativ').value,
+    area:document.getElementById('inp-area').value.trim(),
+    setor:document.getElementById('inp-setor').value.trim(),
+    quart:document.getElementById('inp-quart').value.trim(),
+    recs:[...RECS],
+    agente:U.registro,
+    agenteNome:U.nome,
+    data:hoje(),
+    hora:agora()
+  };
+  D.visitas.push(v);svLocal();syncVisita(v);alerta('✅ Imóvel salvo!');
+  document.getElementById('inp-cad').value='';
+  document.getElementById('inp-rua').value='';
+  document.getElementById('inp-num').value='';
+  document.getElementById('inp-compl').value='';
+  document.getElementById('inp-obs').value='';
+  document.getElementById('inp-sit').selectedIndex=0;
+  RECS=[];renderRecs();
+  document.getElementById('bloco-hist').classList.add('oc');
+  document.getElementById('sg-rua').innerHTML='';
+  document.getElementById('inp-cad').focus();
+}
+
+function painelAgente(){
+  const mv=D.visitas.filter(v=>v.agente===U?.registro&&v.data===hoje());
+  const tb=document.getElementById('tb-vis');const vz=document.getElementById('vis-vazio');
+  tb.innerHTML='';
+  if(!mv.length){vz.style.display='';}
+  else{vz.style.display='none';mv.forEach(v=>{const tl=v.recs.some(r=>r.larva==='Sim');tb.innerHTML+=`<tr><td>${v.cad||'—'}</td><td>${v.rua}, ${v.numero}</td><td>${bdgSit(v.situacao)}</td><td>${tl?'<span class="bdg br2">🦟 Sim</span>':'<span class="bdg bv2">Não</span>'}</td><td>${v.hora}</td><td><div style="display:flex;gap:6px"><button class="btn bc bsm" onclick="editVis(${v.id})">✏️</button><button class="btn bc bsm" onclick="delVis(${v.id})">🗑</button></div></td></tr>`;});}
+  let rc=0,lv=0,am=0;mv.forEach(v=>{rc+=v.recs.length;v.recs.forEach(r=>{if(r.larva==='Sim')lv++;if(r.amostra)am++;});});
+  document.getElementById('kpi-im').textContent=mv.length;document.getElementById('kpi-rc').textContent=rc;document.getElementById('kpi-lv').textContent=lv;document.getElementById('kpi-am').textContent=am;
+  if(mv.length){const u=mv[mv.length-1];document.getElementById('ult-imovel').innerHTML=`🕘 Último: <b>${u.rua}, ${u.numero}</b> — ${u.situacao} — ${u.hora}`;}
+}
+
+function editVis(id){
+  const i=D.visitas.findIndex(v=>v.id===id);if(i<0)return;
+  const v=D.visitas[i];
+  document.getElementById('inp-cad').value=v.cad||'';document.getElementById('inp-rua').value=v.rua;document.getElementById('inp-num').value=v.numero;document.getElementById('inp-compl').value=v.compl||'';document.getElementById('inp-sit').value=v.situacao;document.getElementById('inp-obs').value=v.obs||'';
+  RECS=[...v.recs];renderRecs();D.visitas.splice(i,1);svLocal();painelAgente();
+  document.querySelectorAll('#tela-agente .ni').forEach(n=>n.classList.remove('on'));document.querySelector('#tela-agente .ni').classList.add('on');document.querySelectorAll('#tela-agente .pg').forEach(p=>p.classList.remove('on'));document.getElementById('pg-lanc').classList.add('on');
+}
+function delVis(id){confirmar('Excluir visita?','Não pode ser desfeito.',()=>{D.visitas=D.visitas.filter(v=>v.id!==id);svLocal();painelAgente();alerta('Visita excluída.');});}
+
+function sugerirRua(){
+  const v=document.getElementById('inp-rua').value.trim().toLowerCase();const box=document.getElementById('sg-rua');box.innerHTML='';
+  if(v.length<2)return;
+  const rs=[...new Set(D.visitas.map(v=>v.rua).filter(r=>r&&r.toLowerCase().includes(v)))].slice(0,5);
+  if(!rs.length)return;
+  box.innerHTML='<div class="sgbox">'+rs.map(r=>`<div class="sgit" onclick="selRua('${r.replace(/'/g,"\\'")}')">${r}</div>`).join('')+'</div>';
+  buscarHist();
+}
+function selRua(r, bairro){
+  document.getElementById('inp-rua').value=r;
+  document.getElementById('sg-rua').innerHTML='';
+}
+
+function resetHist(){
+  // Ao mudar endereço/complemento, esconde histórico e reseta situação
+  document.getElementById('bloco-hist').classList.add('oc');
+  document.getElementById('inp-sit').selectedIndex=0;
+}
+
+function onChangeSituacao(){
+  const sit=document.getElementById('inp-sit').value;
+  // Só mostra histórico se imóvel foi trabalhado ou parcial
+  if(sit==='Trabalhado'||sit==='Parcial'){
+    buscarHist();
+  } else {
+    document.getElementById('bloco-hist').classList.add('oc');
+  }
+}
+
+function buscarHist(){
+  const rua=document.getElementById('inp-rua').value.trim().toLowerCase();
+  const num=document.getElementById('inp-num').value.trim();
+  const bl=document.getElementById('bloco-hist');
+  if(!rua||!num){bl.classList.add('oc');return;}
+  
+  const hist=D.visitas.filter(v=>v.rua&&v.rua.toLowerCase()===rua&&v.numero===num).reverse();
+  if(!hist.length){bl.classList.add('oc');return;}
+  
+  bl.classList.remove('oc');
+  const ult=hist[0]; // Última visita
+  const tl=ult.recs.some(r=>r.larva==='Sim');
+  const sitCor={Trabalhado:'var(--verde)',Fechado:'var(--amarelo)',Recusa:'var(--vermelho)',Desocupado:'var(--cinza)',Temporada:'var(--amarelo)',Parcial:'var(--amarelo)'};
+
+  bl.innerHTML=`
+    <div style="border:2px solid var(--azul);border-radius:10px;overflow:hidden">
+      <div style="background:var(--azul);padding:8px 12px;font-size:12px;font-weight:700;color:white;display:flex;justify-content:space-between;align-items:center">
+        <span>📜 ÚLTIMA VISITA — ${ult.data} às ${ult.hora}</span>
+        ${hist.length>1?`<span style="opacity:.8">${hist.length} visitas anteriores</span>`:''}
+      </div>
+      <div style="padding:12px;background:#f8f9fa">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+          <div style="text-align:center;background:white;border-radius:8px;padding:8px">
+            <div style="font-size:11px;color:var(--cinza);font-weight:700;text-transform:uppercase">Situação</div>
+            <div style="font-size:14px;font-weight:800;color:${sitCor[ult.situacao]||'var(--cinza)'};margin-top:2px">${ult.situacao}</div>
+          </div>
+          <div style="text-align:center;background:white;border-radius:8px;padding:8px">
+            <div style="font-size:11px;color:var(--cinza);font-weight:700;text-transform:uppercase">Recipientes</div>
+            <div style="font-size:14px;font-weight:800;color:var(--texto);margin-top:2px">${ult.recs.length}</div>
+          </div>
+          <div style="text-align:center;background:white;border-radius:8px;padding:8px">
+            <div style="font-size:11px;color:var(--cinza);font-weight:700;text-transform:uppercase">Foco</div>
+            <div style="font-size:14px;font-weight:800;color:${tl?'var(--vermelho)':'var(--verde)'};margin-top:2px">${tl?'🦟 SIM':'✅ NÃO'}</div>
+          </div>
+        </div>
+        ${ult.recs.length?`
+          <div style="font-size:11px;font-weight:700;color:var(--cinza);text-transform:uppercase;margin-bottom:6px">Recipientes encontrados:</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px">
+            ${ult.recs.map(r=>`
+              <span style="background:${r.larva==='Sim'?'var(--vermelho-bg)':'var(--verde-bg)'};color:${r.larva==='Sim'?'var(--vermelho)':'var(--verde)'};padding:3px 9px;border-radius:12px;font-size:12px;font-weight:700">
+                ${r.grupo} — ${r.tipo.split('-')[0].trim()} (${r.qtd})${r.larva==='Sim'?' 🦟':''}
+              </span>`).join('')}
+          </div>`:''
+        }
+        ${ult.obs?`<div style="margin-top:8px;font-size:12px;color:var(--cinza);font-style:italic">📝 ${ult.obs}</div>`:''}
+        <div style="margin-top:8px;font-size:11px;color:var(--cinza)">👤 ${ult.agenteNome}</div>
+        ${hist.length>1?`
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--borda)">
+            <div style="font-size:11px;font-weight:700;color:var(--cinza);text-transform:uppercase;margin-bottom:6px">Visitas anteriores:</div>
+            ${hist.slice(1,4).map(v=>{const t=v.recs.some(r=>r.larva==='Sim');return`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between"><span>${v.data} — ${v.situacao}${t?' 🦟':''}</span><span style="color:var(--cinza)">${v.agenteNome}</span></div>`;}).join('')}
+          </div>`:''}
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════ SUPERVISOR ═══════════════════════════
+function popularSels(){
+  const ags=D.usuarios.filter(u=>u.perfil==='agente');
+  ['am-ag','ss-ag'].forEach(id=>{const s=document.getElementById(id);if(!s)return;s.innerHTML='<option value="">— Selecione —</option>';ags.forEach(a=>s.innerHTML+=`<option value="${a.registro}">${a.nome}</option>`);});
+  renderAms();
+}
+
+function painelSup(){
+  const hj=hoje();const vhj=D.visitas.filter(v=>v.data===hj);const ags=[...new Set(vhj.map(v=>v.agente))];
+  const tb=document.getElementById('tb-sag');const vz=document.getElementById('sag-vazio');tb.innerHTML='';
+  if(!ags.length){vz.classList.remove('oc');}
+  else{
+    vz.classList.add('oc');
+    ags.forEach(r=>{
+      const u=D.usuarios.find(x=>x.registro===r)||{nome:r};
+      const vv=vhj.filter(v=>v.agente===r);
+      let rc=0,lv=0,am=0;
+      vv.forEach(v=>{rc+=v.recs.length;v.recs.forEach(x=>{if(x.larva==='Sim')lv++;if(x.amostra)am++;});});
+      tb.innerHTML+=`<tr>
+        <td>
+          <span style="color:var(--azul);cursor:pointer;font-weight:700;text-decoration:underline" onclick="verBoletimAgente('${r}','${u.nome}')">
+            👁️ ${u.nome}
+          </span>
+        </td>
+        <td>${vv[0]?.area||u.area||'—'}</td>
+        <td><b>${vv.length}</b></td>
+        <td>${am}</td>
+        <td>${lv>0?`<span class="bdg br2">${lv}</span>`:'0'}</td>
+      </tr>`;
+    });
+  }
+  let tI=vhj.length,tL=0;vhj.forEach(v=>v.recs.forEach(r=>{if(r.larva==='Sim')tL++;}));
+  document.getElementById('sup-kpis').innerHTML=`<div class="kpi"><h2>${tI}</h2><p>Imóveis Hoje</p></div><div class="kpi"><h2 style="color:var(--vermelho)">${tL}</h2><p>Focos Hoje</p></div><div class="kpi"><h2 style="color:var(--azul)">${ags.length}</h2><p>Agentes Ativos</p></div>`;
+}
+
+function verBoletimAgente(reg, nome, iniStr, fimStr){
+  // Calcular período padrão: últimos 12 meses
+  const agora = new Date();
+  const ini = iniStr || new Date(agora.getFullYear()-1, agora.getMonth(), agora.getDate()).toISOString().slice(0,10);
+  const fim = fimStr || agora.toISOString().slice(0,10);
+
+  // Filtrar visitas do agente no período
+  const vv=D.visitas.filter(v=>{
+    if(v.agente!==reg) return false;
+    let d=v.data;
+    if(d&&d.includes('/')) d=d.split('/').reverse().join('-');
+    return d>=ini && d<=fim;
+  }).sort((a,b)=>{
+    let da=a.data, db=b.data;
+    if(da&&da.includes('/')) da=da.split('/').reverse().join('-');
+    if(db&&db.includes('/')) db=db.split('/').reverse().join('-');
+    return db.localeCompare(da);
+  });
+
+  document.getElementById('mdl-bol-titulo').innerHTML=`📋 Histórico de ${nome}`;
+  
+  // Cabeçalho com filtro de período
+  const filtroHtml=`
+    <div style="background:var(--azul-bg);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:700;color:var(--azul)">📅 Período:</span>
+      <input type="date" id="bol-ini" value="${ini}" style="padding:6px 10px;border:2px solid var(--azul);border-radius:8px;font-family:sans-serif;font-size:13px"/>
+      <span style="font-size:13px;color:var(--cinza)">até</span>
+      <input type="date" id="bol-fim" value="${fim}" style="padding:6px 10px;border:2px solid var(--azul);border-radius:8px;font-family:sans-serif;font-size:13px"/>
+      <button onclick="verBoletimAgente('${reg}','${nome}',document.getElementById('bol-ini').value,document.getElementById('bol-fim').value)" 
+        style="padding:7px 14px;background:var(--azul);color:white;border:none;border-radius:8px;font-family:sans-serif;font-weight:700;font-size:13px;cursor:pointer">
+        🔍 Filtrar
+      </button>
+    </div>`;
+
+  if(!vv.length){
+    document.getElementById('mdl-bol-conteudo').innerHTML=filtroHtml+'<div class="vazio"><div class="vi">📋</div><p>Nenhuma visita no período selecionado.</p></div>';
+    document.getElementById('mdl-boletim').classList.add('show');
+    return;
+  }
+
+  let html=filtroHtml+`
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+      <div class="kpi"><h2>${vv.length}</h2><p>Imóveis</p></div>
+      <div class="kpi"><h2>${vv.reduce((s,v)=>s+v.recs.length,0)}</h2><p>Recipientes</p></div>
+      <div class="kpi"><h2 style="color:var(--vermelho)">${vv.reduce((s,v)=>s+v.recs.filter(r=>r.larva==='Sim').length,0)}</h2><p>Com Larva</p></div>
+      <div class="kpi"><h2 style="color:var(--azul)">${vv.reduce((s,v)=>s+v.recs.filter(r=>r.amostra).length,0)}</h2><p>Amostras</p></div>
+    </div>`;
+
+  vv.forEach((v,i)=>{
+    const tl=v.recs.some(r=>r.larva==='Sim');
+    const sitCor={Trabalhado:'bv2',Fechado:'ba2',Recusa:'br2',Desocupado:'bc2',Temporada:'baz',Parcial:'blo'};
+    html+=`
+      <div style="background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:10px;border-left:4px solid ${tl?'var(--vermelho)':v.situacao==='Trabalhado'?'var(--verde)':'var(--amarelo)'}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+          <div>
+            <div style="font-size:15px;font-weight:800">${i+1}. ${v.rua}, ${v.numero}${v.compl?' — '+v.compl:''}</div>
+            <div style="font-size:12px;color:var(--cinza);margin-top:2px">CAD: ${v.cad||'—'} | Área: ${v.area||'—'} | Setor: ${v.setor||'—'} | Quarteirão: ${v.quart||'—'}</div>
+          </div>
+          <div style="text-align:right">
+            <span class="bdg ${sitCor[v.situacao]||'bc2'}">${v.situacao}</span>
+            <div style="font-size:12px;color:var(--cinza);margin-top:4px">🕘 ${v.hora}</div>
+          </div>
+        </div>`;
+
+    if(v.recs.length){
+      html+=`<div style="margin-top:8px">
+        <div style="font-size:11px;font-weight:700;color:var(--cinza);text-transform:uppercase;margin-bottom:6px">Recipientes (${v.recs.length})</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#e9ecef">
+            <th style="padding:5px 8px;text-align:left">Grupo</th>
+            <th style="padding:5px 8px;text-align:left">Tipo</th>
+            <th style="padding:5px 8px;text-align:center">Qtd</th>
+            <th style="padding:5px 8px;text-align:center">Água</th>
+            <th style="padding:5px 8px;text-align:center">Larva</th>
+            <th style="padding:5px 8px;text-align:center">Amostra</th>
+            <th style="padding:5px 8px;text-align:left">Controle</th>
+          </tr></thead>
+          <tbody>`;
+      v.recs.forEach(r=>{
+        const ctrl=[];if(r.mecanico)ctrl.push('Mec');if(r.focal)ctrl.push('Foc');if(r.perifocal)ctrl.push('Per');if(r.nebulizacao)ctrl.push('Neb');
+        html+=`<tr style="border-bottom:1px solid #dee2e6">
+          <td style="padding:5px 8px">${r.grupo}</td>
+          <td style="padding:5px 8px">${r.tipo}</td>
+          <td style="padding:5px 8px;text-align:center">${r.qtd}</td>
+          <td style="padding:5px 8px;text-align:center">${r.agua==='Sim'?`<span class="bdg baz">${r.qtdAgua||r.qtd}</span>`:'—'}</td>
+          <td style="padding:5px 8px;text-align:center">${r.larva==='Sim'?`<span class="bdg br2">${r.qtdLarva||r.qtd}</span>`:'—'}</td>
+          <td style="padding:5px 8px;text-align:center">${r.amostra||'—'}</td>
+          <td style="padding:5px 8px">${ctrl.join(', ')||'—'}</td>
+        </tr>`;
+      });
+      html+=`</tbody></table></div>`;
+    }else{
+      html+=`<div style="font-size:12px;color:var(--cinza);margin-top:6px">Nenhum recipiente registrado.</div>`;
+    }
+
+    if(v.obs){
+      html+=`<div style="margin-top:8px;padding:8px 10px;background:#fff3cd;border-radius:7px;font-size:13px">📝 <b>Obs:</b> ${v.obs}</div>`;
+    }
+
+    html+=`</div>`;
+  });
+
+  document.getElementById('mdl-bol-conteudo').innerHTML=html;
+  document.getElementById('mdl-boletim').classList.add('show');
+}
+
+// ── NOVO QUARTEIRÃO ──
+function novoQuarteirão(){
+  confirmar('Iniciar novo quarteirão?','O quarteirão atual será finalizado e você poderá iniciar um novo.',()=>{
+    document.getElementById('inp-quart').value='';
+    document.getElementById('inp-setor').value='';
+    document.getElementById('inp-area').value='';
+    document.getElementById('inp-cad').value='';
+    document.getElementById('inp-rua').value='';
+    document.getElementById('inp-num').value='';
+    document.getElementById('inp-compl').value='';
+    document.getElementById('inp-obs').value='';
+    document.getElementById('inp-sit').selectedIndex=0;
+    RECS=[];renderRecs();
+    document.getElementById('bloco-hist').classList.add('oc');
+    document.getElementById('sg-rua').innerHTML='';
+    if(U?.area) document.getElementById('inp-area').value=U.area;
+
+    alerta('🏘️ Novo quarteirão iniciado!');
+    document.getElementById('inp-quart').focus();
+  });
+}
+
+// ── AMOSTRAS ──
+let amAtual = null;
+
+function renderAms(){
+  const hj=hoje();
+  // Coletar todas as amostras pendentes das visitas de hoje
+  const pendentes=[];
+  D.visitas.filter(v=>v.data===hj).forEach(v=>{
+    v.recs.forEach(r=>{
+      if(r.larva==='Sim'&&r.amostra){
+        const jaLida=D.amostras.find(a=>a.numero===r.amostra);
+        if(!jaLida){
+          pendentes.push({numero:r.amostra,agente:v.agente,agenteNome:v.agenteNome,rua:v.rua,numero_imovel:v.numero,grupo:r.grupo,tipo:r.tipo});
+        }
+      }
+    });
+  });
+
+  // Pendentes
+  const elPend=document.getElementById('am-pendentes');
+  const elVazio=document.getElementById('am-pend-vazio');
+  if(!pendentes.length){
+    elPend.innerHTML='';
+    elVazio.style.display='';
+  } else {
+    elVazio.style.display='none';
+    elPend.innerHTML=`<div class="tw"><table class="tb">
+      <thead><tr><th>Nº Amostra</th><th>Agente</th><th>Endereço</th><th>Recipiente</th><th>Ação</th></tr></thead>
+      <tbody>${pendentes.map(p=>`<tr>
+        <td><b>${p.numero}</b></td>
+        <td>${p.agenteNome}</td>
+        <td>${p.rua}, ${p.numero_imovel}</td>
+        <td style="font-size:12px">${p.grupo} — ${p.tipo}</td>
+        <td><button class="btn ba bsm" onclick="abrirLeitura('${p.numero}','${p.agente}','${p.agenteNome}','${p.rua}, ${p.numero_imovel}','${p.grupo} — ${p.tipo}')">🔬 Registrar</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  }
+
+  // Concluídas
+  const tb=document.getElementById('tb-ams');const vz=document.getElementById('am-vazio');tb.innerHTML='';
+  if(!D.amostras.length){vz.style.display='';return;}vz.style.display='none';
+  [...D.amostras].reverse().forEach(a=>{
+    tb.innerHTML+=`<tr>
+      <td><b>${a.numero}</b></td>
+      <td>${a.agenteNome}</td>
+      <td style="font-size:12px">${a.endereco||'—'}</td>
+      <td style="font-size:12px">${a.recipiente||'—'}</td>
+      <td>${a.especie}</td>
+      <td>${a.qtd||0}</td>
+      <td>${a.resultado==='Positivo'?'<span class="bdg br2">Positivo</span>':'<span class="bdg bv2">Negativo</span>'}</td>
+    </tr>`;
+  });
+}
+
+function abrirLeitura(numero, agente, agenteNome, endereco, recipiente){
+  amAtual={numero,agente,agenteNome,endereco,recipiente};
+  document.getElementById('mdl-am-info').innerHTML=`
+    <b>Nº ${numero}</b> — ${agenteNome}<br>
+    📍 ${endereco}<br>
+    🪣 ${recipiente}`;
+  document.getElementById('am-esp').selectedIndex=0;
+  document.getElementById('am-qtd').value='';
+  document.getElementById('am-res').selectedIndex=0;
+  document.getElementById('am-obs').value='';
+  document.getElementById('mdl-amostra').classList.add('show');
+}
+
+function confirmarLeitura(){
+  if(!amAtual){return;}
+  const a={
+    id:Date.now(),
+    agente:amAtual.agente,
+    agenteNome:amAtual.agenteNome,
+    numero:amAtual.numero,
+    endereco:amAtual.endereco,
+    recipiente:amAtual.recipiente,
+    especie:document.getElementById('am-esp').value,
+    qtd:document.getElementById('am-qtd').value,
+    resultado:document.getElementById('am-res').value,
+    obs:document.getElementById('am-obs').value,
+    supervisor:U.registro,
+    data:hoje()
+  };
+  D.amostras.push(a);svLocal();syncAmostra(a);
+  document.getElementById('mdl-amostra').classList.remove('show');
+  alerta('✅ Leitura salva!');
+  amAtual=null;
+  renderAms();
+}
+
+function salvarAmostra(){ confirmarLeitura(); }
+
+// ── SUPERVISÃO ──
+function onChangeTipoSup(){
+  const tipo=document.getElementById('ss-tip').value;
+  const ag=document.getElementById('ss-ag').value;
+  const blocoInd=document.getElementById('bloco-boletim-ind');
+  const blocoDiverg=document.getElementById('bloco-diverg');
+
+  if(tipo==='Indireta'){
+    blocoInd.style.display='block';
+    blocoDiverg.style.display='block';
+    if(ag) carregarBoletimAgente(ag);
+  } else {
+    blocoInd.style.display='none';
+    blocoDiverg.style.display='none';
+  }
+}
+
+function carregarBoletimAgente(reg){
+  const hj=hoje();
+  const vv=D.visitas.filter(v=>v.agente===reg&&v.data===hj);
+  const resumo=document.getElementById('boletim-ind-resumo');
+  const visitas=document.getElementById('boletim-ind-visitas');
+
+  if(!vv.length){
+    resumo.innerHTML='<span style="color:var(--cinza)">Nenhuma visita registrada hoje por este agente.</span>';
+    visitas.innerHTML='';
+    return;
+  }
+
+  const nomeAg=D.usuarios.find(u=>u.registro===reg)?.nome||reg;
+  const totalRecs=vv.reduce((s,v)=>s+v.recs.length,0);
+  const totalLarvas=vv.reduce((s,v)=>s+v.recs.filter(r=>r.larva==='Sim').length,0);
+  resumo.innerHTML=`<b>${nomeAg}</b> — ${vv.length} imóveis visitados | ${totalRecs} recipientes | ${totalLarvas} com larva`;
+
+  visitas.innerHTML=vv.map((v,i)=>{
+    const tl=v.recs.some(r=>r.larva==='Sim');
+    return `<div style="background:#fff;border-radius:8px;padding:10px 12px;margin-bottom:8px;border-left:3px solid ${tl?'var(--vermelho)':v.situacao==='Trabalhado'?'var(--verde)':'var(--amarelo)'}">
+      <div style="display:flex;justify-content:space-between">
+        <b style="font-size:14px">${i+1}. ${v.rua}, ${v.numero}</b>
+        <span class="bdg ${v.situacao==='Trabalhado'?'bv2':v.situacao==='Recusa'?'br2':'ba2'}">${v.situacao}</span>
+      </div>
+      <div style="font-size:12px;color:var(--cinza);margin-top:3px">
+        CAD: ${v.cad||'—'} | Quarteirão: ${v.quart||'—'} | ${v.hora}
+        ${tl?'<span style="color:var(--vermelho);font-weight:700;margin-left:8px">🦟 Foco</span>':''}
+      </div>
+      ${v.recs.length?`<div style="font-size:12px;margin-top:5px;color:var(--cinza)">${v.recs.map(r=>`${r.grupo}(${r.qtd}${r.larva==='Sim'?' 🦟':''})`).join(' · ')}</div>`:''}
+      ${v.obs?`<div style="font-size:12px;margin-top:4px;color:#856404">📝 ${v.obs}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function salvarSup(){
+  const ag=document.getElementById('ss-ag').value;
+  if(!ag){alerta('⚠️ Selecione o agente','av');return;}
+  const tipo=document.getElementById('ss-tip').value;
+  const its=['sc1','sc2','sc3','sc4','sc5','sc6'];
+  const ok=its.filter(id=>document.getElementById(id).checked).length;
+  const diverg=tipo==='Indireta'?document.getElementById('ss-diverg').value:'';
+  const s={
+    id:Date.now(),
+    agente:ag,
+    agenteNome:D.usuarios.find(u=>u.registro===ag)?.nome||ag,
+    tipo,itensOk:ok,
+    obs:document.getElementById('ss-obs').value,
+    divergencias:diverg,
+    supervisor:U.registro,supNome:U.nome,data:hoje()
+  };
+  D.supervisoes.push(s);svLocal();syncSup(s);alerta('✅ Supervisão salva!');
+  its.forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('ss-obs').value='';
+  if(tipo==='Indireta') document.getElementById('ss-diverg').value='';
+  document.getElementById('bloco-boletim-ind').style.display='none';
+  document.getElementById('bloco-diverg').style.display='none';
+  document.getElementById('ss-tip').selectedIndex=0;
+  renderSups();
+}
+
+function renderSups(){
+  const tb=document.getElementById('tb-sups');const vz=document.getElementById('sup-vazio');tb.innerHTML='';
+  if(!D.supervisoes.length){vz.style.display='';return;}vz.style.display='none';
+  [...D.supervisoes].reverse().forEach(s=>{
+    tb.innerHTML+=`<tr>
+      <td>${s.agenteNome}</td>
+      <td>${s.tipo==='Indireta'?'<span class="bdg ba2">Indireta</span>':'<span class="bdg bv2">Direta</span>'}</td>
+      <td>${s.itensOk}/6</td>
+      <td style="font-size:12px;color:var(--vermelho)">${s.divergencias?s.divergencias.slice(0,50)+(s.divergencias.length>50?'…':''):'—'}</td>
+      <td>${s.data}</td>
+    </tr>`;
+  });
+}
+
+// ═══════════════════════════ ADMIN ═══════════════════════════
+function painelAdm(){
+  const hj=hoje();const hV=D.visitas.filter(v=>v.data===hj);let tL=0,tA=0;hV.forEach(v=>v.recs.forEach(r=>{if(r.larva==='Sim')tL++;if(r.amostra)tA++;}));
+  document.getElementById('adm-kpis').innerHTML=`<div class="kpi"><h2>${hV.length}</h2><p>Imóveis Hoje</p></div><div class="kpi"><h2 style="color:var(--vermelho)">${tL}</h2><p>Focos Hoje</p></div><div class="kpi"><h2 style="color:var(--azul)">${D.amostras.length}</h2><p>Amostras Total</p></div><div class="kpi"><h2>${D.visitas.length}</h2><p>Visitas Total</p></div>`;
+  let al='';if(tL>5)al+=`<div class="hi hp"><div class="hinfo">🦟 Alto número de focos hoje: ${tL}</div></div>`;
+  D.visitas.forEach(v=>v.recs.forEach(r=>{if(r.larva==='Sim'&&r.amostra&&!D.amostras.find(a=>a.numero===r.amostra))al+=`<div class="hi hf"><div class="hinfo">📋 Amostra ${r.amostra} aguardando leitura</div></div>`;}));
+  if(!al)al='<div style="color:var(--cinza);font-size:14px;padding:8px 0">✅ Nenhum alerta no momento.</div>';
+  document.getElementById('adm-alertas').innerHTML=al;
+  const tb=document.getElementById('tb-sprod');const vz=document.getElementById('sprod-vazio');tb.innerHTML='';
+  if(!D.supervisoes.length){vz.classList.remove('oc');}
+  else{vz.classList.add('oc');const c={};D.supervisoes.forEach(s=>{if(!c[s.supNome])c[s.supNome]={t:0,ags:new Set(),u:''};c[s.supNome].t++;c[s.supNome].ags.add(s.agenteNome);c[s.supNome].u=s.data;});Object.entries(c).forEach(([n,d])=>tb.innerHTML+=`<tr><td><b>${n}</b></td><td>${d.t}</td><td>${d.ags.size}</td><td>${d.u}</td></tr>`);}
+}
+
+function renderAdmAg(){
+  const ags=D.usuarios.filter(u=>u.perfil==='agente');const tb=document.getElementById('tb-aag');const vz=document.getElementById('aag-vazio');
+  tb.innerHTML='';if(!ags.length){vz.classList.remove('oc');return;}vz.classList.add('oc');
+  ags.forEach(ag=>{const vv=D.visitas.filter(v=>v.agente===ag.registro);let rc=0,lv=0,am=0,pd=0;vv.forEach(v=>{rc+=v.recs.length;v.recs.forEach(r=>{if(r.larva==='Sim')lv++;if(r.amostra)am++;if(r.larva==='Sim'&&!r.amostra)pd++;});});tb.innerHTML+=`<tr>
+      <td><span style="color:var(--azul);cursor:pointer;font-weight:700;text-decoration:underline" onclick="verBoletimAgente('${ag.registro}','${ag.nome}')">👁️ ${ag.nome}</span></td>
+      <td>${ag.area||'—'}</td>
+      <td><b>${vv.length}</b></td>
+      <td>${rc}</td>
+      <td>${lv>0?`<span class="bdg br2">${lv}</span>`:'0'}</td>
+      <td>${am}</td>
+      <td>${pd>0?`<span class="bdg ba2">${pd}</span>`:'0'}</td>
+    </tr>`;});
+  let tI=0,tL=0,tA=0;D.visitas.forEach(v=>{tI++;v.recs.forEach(r=>{if(r.larva==='Sim')tL++;if(r.amostra)tA++;});});
+  document.getElementById('adm-ag-kpis').innerHTML=`<div class="kpi"><h2>${tI}</h2><p>Imóveis Total</p></div><div class="kpi"><h2 style="color:var(--vermelho)">${tL}</h2><p>Focos Total</p></div><div class="kpi"><h2 style="color:var(--azul)">${tA}</h2><p>Amostras Total</p></div>`;
+}
+
+function renderEpi(){
+  const ar={};D.visitas.forEach(v=>{const a=v.area||'Sem área';if(!ar[a])ar[a]={im:0,fo:0,am:0};ar[a].im++;if(v.recs.some(r=>r.larva==='Sim'))ar[a].fo++;if(v.recs.some(r=>r.amostra))ar[a].am++;});
+  const tb=document.getElementById('tb-epi');tb.innerHTML='';const pos=D.amostras.filter(a=>a.resultado==='Positivo').length;
+  Object.entries(ar).forEach(([a,d])=>{const iip=d.im>0?(d.fo/d.im*100).toFixed(1):'0.0';const cor=parseFloat(iip)>=1?'br2':parseFloat(iip)>0?'ba2':'bv2';tb.innerHTML+=`<tr><td><b>${a}</b></td><td>${d.im}</td><td>${d.fo>0?`<span class="bdg br2">${d.fo}</span>`:0}</td><td>${d.am}</td><td>${pos}</td><td><span class="bdg ${cor}">${iip}%</span></td></tr>`;});
+  const gr={};D.visitas.forEach(v=>v.recs.forEach(r=>{const k=r.grupo+'|'+r.tipo;if(!gr[k])gr[k]={g:r.grupo,t:r.tipo,q:0,l:0};gr[k].q+=r.qtd||1;if(r.larva==='Sim')gr[k].l++;}));
+  const tbR=document.getElementById('tb-repi');tbR.innerHTML='';Object.values(gr).sort((a,b)=>b.l-a.l).forEach(g=>tbR.innerHTML+=`<tr><td>${g.g}</td><td style="font-size:12px">${g.t}</td><td>${g.q}</td><td>${g.l>0?`<span class="bdg br2">${g.l}</span>`:'0'}</td></tr>`);
+}
+
+function popularCadSup(){
+  const ss=D.usuarios.filter(u=>u.perfil==='supervisor'||u.perfil==='supervisor_geral');const s=document.getElementById('cad-sup');if(!s)return;
+  s.innerHTML='<option value="">— Nenhum —</option>';ss.forEach(x=>s.innerHTML+=`<option value="${x.registro}">${x.nome}</option>`);
+}
+
+function cadastrar(){
+  const nome=document.getElementById('cad-nome').value.trim();const reg=document.getElementById('cad-reg').value.trim().toUpperCase();const sen=document.getElementById('cad-sen').value;const perf=document.getElementById('cad-perf').value;const area=document.getElementById('cad-area').value.trim();const sup=document.getElementById('cad-sup').value;
+  if(!nome||!reg||!sen){alerta('❌ Preencha nome, registro e senha','er');return;}
+  if(D.usuarios.find(u=>u.registro===reg)){alerta('❌ Registro já cadastrado','er');return;}
+  const u={nome,registro:reg,senha:sen,perfil:perf,area,supervisor:sup};
+  D.usuarios.push(u);svLocal();syncUser(u);alerta('✅ Usuário cadastrado!');
+  ['cad-nome','cad-reg','cad-sen','cad-area'].forEach(id=>document.getElementById(id).value='');
+  renderUsrs();popularCadSup();
+}
+
+function renderUsrs(){
+  const cs={agente:'baz',supervisor:'bv2',supervisor_geral:'br2'};const ls={agente:'Agente',supervisor:'Supervisor',supervisor_geral:'Sup. Geral'};
+  document.getElementById('lista-usr').innerHTML=D.usuarios.map((u,i)=>`
+    <div class="ui">
+      <div>
+        <h4>${u.nome}</h4>
+        <p>Reg: ${u.registro}${u.area?' • Área: '+u.area:''}${u.supervisor?' • Sup: '+u.supervisor:''}</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="bdg ${cs[u.perfil]||'bc2'}">${ls[u.perfil]||u.perfil}</span>
+        ${u.perfil!=='supervisor_geral'?`
+          <button class="btn ba bsm" onclick="abrirEdicao(${i})">✏️</button>
+          <button class="btn bc bsm" onclick="delUsr(${i})">🗑</button>
+        `:''}
+      </div>
+    </div>`).join('');
+}
+
+function delUsr(i){const u=D.usuarios[i];if(u.perfil==='supervisor_geral'){alerta('❌ Não é possível excluir o supervisor geral','er');return;}confirmar(`Excluir ${u.nome}?`,'Não pode ser desfeito.',()=>{D.usuarios.splice(i,1);svLocal();renderUsrs();alerta('Usuário excluído.');});}
+
+function abrirEdicao(i){
+  const u=D.usuarios[i];
+  document.getElementById('edit-idx').value=i;
+  document.getElementById('edit-nome').value=u.nome;
+  document.getElementById('edit-reg').value=u.registro;
+  document.getElementById('edit-sen').value='';
+  document.getElementById('edit-perf').value=u.perfil;
+  document.getElementById('edit-area').value=u.area||'';
+  // Popular select de supervisores
+  const ss=D.usuarios.filter(x=>x.perfil==='supervisor'||x.perfil==='supervisor_geral');
+  const sel=document.getElementById('edit-sup');
+  sel.innerHTML='<option value="">— Nenhum —</option>';
+  ss.forEach(s=>sel.innerHTML+=`<option value="${s.registro}" ${u.supervisor===s.registro?'selected':''}>${s.nome}</option>`);
+  document.getElementById('mdl-editar-usr').classList.add('show');
+}
+
+function salvarEdicao(){
+  const i=parseInt(document.getElementById('edit-idx').value);
+  const nome=document.getElementById('edit-nome').value.trim();
+  const reg=document.getElementById('edit-reg').value.trim().toUpperCase();
+  const sen=document.getElementById('edit-sen').value;
+  if(!nome||!reg){alerta('❌ Preencha nome e registro','er');return;}
+  // Verificar se registro já existe em outro usuário
+  const dup=D.usuarios.findIndex(u=>u.registro===reg);
+  if(dup>=0&&dup!==i){alerta('❌ Registro já cadastrado em outro usuário','er');return;}
+  D.usuarios[i].nome=nome;
+  D.usuarios[i].registro=reg;
+  if(sen) D.usuarios[i].senha=sen;
+  D.usuarios[i].perfil=document.getElementById('edit-perf').value;
+  D.usuarios[i].area=document.getElementById('edit-area').value.trim();
+  D.usuarios[i].supervisor=document.getElementById('edit-sup').value;
+  svLocal();syncUser(D.usuarios[i]);
+  document.getElementById('mdl-editar-usr').classList.remove('show');
+  alerta('✅ Usuário atualizado!');
+  renderUsrs();popularCadSup();
+}
+
+function renderExp(){
+  const hjStr=new Date().toISOString().slice(0,10);
+  ['exp-dt-ini','exp-dt-fim','epi-dt-ini','epi-dt-fim'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=hjStr;});
+  const hj=hoje();const hV=D.visitas.filter(v=>v.data===hj);let lv=0,am=0;
+  hV.forEach(v=>v.recs.forEach(r=>{if(r.larva==='Sim')lv++;if(r.amostra)am++;}));
+  document.getElementById('res-exp').innerHTML=`<div style="display:grid;gap:6px">
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--borda)"><span>Visitas hoje</span><b>${hV.length}</b></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--borda)"><span>Focos hoje</span><b>${lv}</b></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--borda)"><span>Total de visitas</span><b>${D.visitas.length}</b></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--borda)"><span>Total de amostras</span><b>${D.amostras.length}</b></div>
+    <div style="display:flex;justify-content:space-between;padding:7px 0"><span>Total de suspeitos</span><b>${(D.suspeitos||[]).length}</b></div>
+  </div>`;
+}
+
+function filtrarPorPeriodo(lista, ini, fim){
+  return lista.filter(v=>{
+    if(!v.data) return false;
+    let d=v.data;
+    if(d.includes('/')) d=d.split('/').reverse().join('-');
+    return d>=ini && d<=fim;
+  });
+}
+
+function expBoletins(){
+  if(!window.XLSX){alerta('❌ Biblioteca Excel não carregada. Aguarde e tente novamente.','er');return;}
+  if(!D.visitas.length){alerta('Nenhuma visita para exportar','av');return;}
+  const ini=document.getElementById('exp-dt-ini').value;
+  const fim=document.getElementById('exp-dt-fim').value;
+  if(!ini||!fim){alerta('⚠️ Selecione o período','av');return;}
+  const vFilt=filtrarPorPeriodo(D.visitas,ini,fim);
+  if(!vFilt.length){alerta('Nenhuma visita no período selecionado','av');return;}
+  const wb=XLSX.utils.book_new();
+  const CAB=['Data','Área','Setor Censitário','Quarteirão','Agente','CAD','Rua','Número','Situação','Medidas de Controle','Grupo Recipiente','Tipo Recipiente','Qtd Total','Qtd com Água','Qtd com Larva','Nº Amostra','Observações'];
+  const quarteirioes={};
+  vFilt.forEach(v=>{const k=(v.quart||'Sem Quarteirão').toString().trim();if(!quarteirioes[k])quarteirioes[k]=[];quarteirioes[k].push(v);});
+  Object.entries(quarteirioes).sort(([a],[b])=>a.localeCompare(b,undefined,{numeric:true})).forEach(([quart,visitas])=>{
+    const rows=[CAB];
+    visitas.forEach(v=>{
+      const ctrl=(v.controle||[]).join(', ')||'—';
+      if(v.recs&&v.recs.length){
+        v.recs.forEach(r=>rows.push([v.data,v.area||'—',v.setor||'—',v.quart||'—',v.agenteNome,v.cad||'—',v.rua,v.numero,v.situacao,ctrl,r.grupo,r.tipo,r.qtd||1,r.agua==='Sim'?(r.qtdAgua||r.qtd||1):0,r.larva==='Sim'?(r.qtdLarva||r.qtd||1):0,r.amostra||'—',v.obs||'—']));
+      } else {
+        rows.push([v.data,v.area||'—',v.setor||'—',v.quart||'—',v.agenteNome,v.cad||'—',v.rua,v.numero,v.situacao,ctrl,'—','—',0,0,0,'—',v.obs||'—']);
+      }
+    });
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:12},{wch:8},{wch:10},{wch:12},{wch:20},{wch:8},{wch:25},{wch:8},{wch:12},{wch:20},{wch:8},{wch:25},{wch:8},{wch:10},{wch:10},{wch:10},{wch:30}];
+    XLSX.utils.book_append_sheet(wb,ws,('Q'+quart).slice(0,31));
+  });
+  XLSX.writeFile(wb,'Boletins_Jandira_'+ini+'_'+fim+'.xlsx');
+  alerta('✅ Planilha de boletins exportada!');
+}
+
+function expPanorama(){
+  if(!window.XLSX){alerta('❌ Biblioteca Excel não carregada. Aguarde e tente novamente.','er');return;}
+  const ini=document.getElementById('epi-dt-ini').value;
+  const fim=document.getElementById('epi-dt-fim').value;
+  if(!ini||!fim){alerta('⚠️ Selecione o período','av');return;}
+  const vFilt=filtrarPorPeriodo(D.visitas,ini,fim);
+  const suspFilt=filtrarPorPeriodo(D.suspeitos||[],ini,fim);
+  const wb=XLSX.utils.book_new();
+
+  // ABA 1 — Recipientes
+  const recMap={};
+  vFilt.forEach(v=>v.recs.forEach(r=>{const k=r.grupo+'|'+r.tipo;if(!recMap[k])recMap[k]={grupo:r.grupo,tipo:r.tipo,total:0,comAgua:0,comLarva:0};recMap[k].total+=r.qtd||1;if(r.agua==='Sim')recMap[k].comAgua+=r.qtdAgua||r.qtd||1;if(r.larva==='Sim')recMap[k].comLarva+=r.qtdLarva||r.qtd||1;}));
+  const ws1=XLSX.utils.aoa_to_sheet([['Grupo','Tipo de Recipiente','Qtd Total','Com Água','Com Larva','% com Larva'],...Object.values(recMap).sort((a,b)=>b.comLarva-a.comLarva).map(r=>[r.grupo,r.tipo,r.total,r.comAgua,r.comLarva,r.total>0?((r.comLarva/r.total)*100).toFixed(1)+'%':'0%'])]);
+  ws1['!cols']=[{wch:8},{wch:30},{wch:12},{wch:12},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Recipientes');
+
+  // ABA 2 — Áreas de Risco
+  const areaMap={};
+  vFilt.forEach(v=>{const a=v.area||'Sem área';if(!areaMap[a])areaMap[a]={area:a,imoveis:0,focos:0,recipientes:0,agentes:new Set()};areaMap[a].imoveis++;areaMap[a].agentes.add(v.agenteNome);v.recs.forEach(r=>{areaMap[a].recipientes++;if(r.larva==='Sim')areaMap[a].focos++;});});
+  const ws2=XLSX.utils.aoa_to_sheet([['Área','Imóveis','Recipientes','Focos','IIP (%)','Agentes'],...Object.values(areaMap).sort((a,b)=>b.focos-a.focos).map(a=>[a.area,a.imoveis,a.recipientes,a.focos,a.imoveis>0?((a.focos/a.imoveis)*100).toFixed(1)+'%':'0%',[...a.agentes].join(', ')])]);
+  ws2['!cols']=[{wch:15},{wch:12},{wch:14},{wch:10},{wch:10},{wch:30}];
+  XLSX.utils.book_append_sheet(wb,ws2,'Áreas de Risco');
+
+  // ABA 3 — Suspeitos por Bairro
+  const bairroMap={};
+  suspFilt.forEach(s=>{const b=s.bairro||'Não informado';if(!bairroMap[b])bairroMap[b]={bairro:b,total:0,sintomas:{}};bairroMap[b].total++;(s.sintsCheck||[]).forEach(st=>{bairroMap[b].sintomas[st]=(bairroMap[b].sintomas[st]||0)+1;});});
+  const ws3=XLSX.utils.aoa_to_sheet([['Bairro','Total Suspeitos','Sintoma mais Frequente','Ocorrências'],...Object.values(bairroMap).sort((a,b)=>b.total-a.total).map(b=>{const top=Object.entries(b.sintomas).sort((x,y)=>y[1]-x[1])[0];return[b.bairro,b.total,top?top[0]:'—',top?top[1]:0];})]);
+  ws3['!cols']=[{wch:20},{wch:16},{wch:30},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws3,'Suspeitos por Bairro');
+
+  // ABA 4 — Sintomas
+  const sintMap={};
+  suspFilt.forEach(s=>(s.sintsCheck||[]).forEach(st=>{sintMap[st]=(sintMap[st]||0)+1;}));
+  const totalSusp=suspFilt.length||1;
+  const ws4=XLSX.utils.aoa_to_sheet([['Sintoma','Ocorrências','% do Total'],...Object.entries(sintMap).sort((a,b)=>b[1]-a[1]).map(([s,n])=>[s,n,((n/totalSusp)*100).toFixed(1)+'%'])]);
+  ws4['!cols']=[{wch:35},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws4,'Sintomas');
+
+  // ABA 5 — Produção por Agente
+  const agMap={};
+  vFilt.forEach(v=>{const a=v.agenteNome||v.agente;if(!agMap[a])agMap[a]={agente:a,imoveis:0,recipientes:0,focos:0,amostras:0};agMap[a].imoveis++;v.recs.forEach(r=>{agMap[a].recipientes++;if(r.larva==='Sim')agMap[a].focos++;if(r.amostra)agMap[a].amostras++;});});
+  const ws5=XLSX.utils.aoa_to_sheet([['Agente','Imóveis','Recipientes','Focos','Amostras','IIP (%)'],...Object.values(agMap).sort((a,b)=>b.imoveis-a.imoveis).map(a=>[a.agente,a.imoveis,a.recipientes,a.focos,a.amostras,a.imoveis>0?((a.focos/a.imoveis)*100).toFixed(1)+'%':'0%'])]);
+  ws5['!cols']=[{wch:25},{wch:10},{wch:14},{wch:10},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws5,'Produção por Agente');
+
+  // ABA 6 — Resumo Geral
+  const totalFocos=vFilt.reduce((s,v)=>s+v.recs.filter(r=>r.larva==='Sim').length,0);
+  const totalRecs=vFilt.reduce((s,v)=>s+v.recs.length,0);
+  const ws6=XLSX.utils.aoa_to_sheet([
+    ['PANORAMA EPIDEMIOLÓGICO — ZOONOSES JANDIRA'],['Período',ini+' a '+fim],['Gerado em',hoje()+' às '+agora()],[''],
+    ['INDICADOR','VALOR'],
+    ['Total de imóveis visitados',vFilt.length],
+    ['Total de recipientes inspecionados',totalRecs],
+    ['Total de focos encontrados',totalFocos],
+    ['Índice de Infestação Predial (IIP)',vFilt.length>0?((totalFocos/vFilt.length)*100).toFixed(1)+'%':'0%'],
+    ['Total de amostras coletadas',D.amostras.length],
+    ['Total de suspeitos notificados',suspFilt.length],
+    ['Agentes em campo',[...new Set(vFilt.map(v=>v.agenteNome))].length],[''],
+    ['SITUAÇÃO DOS IMÓVEIS','QUANTIDADE'],
+    ...['Trabalhado','Fechado','Recusa','Desocupado','Temporada','Parcial'].map(s=>[s,vFilt.filter(v=>v.situacao===s).length])
+  ]);
+  ws6['!cols']=[{wch:40},{wch:20}];
+  XLSX.utils.book_append_sheet(wb,ws6,'Resumo Geral');
+
+  XLSX.writeFile(wb,'Panorama_Jandira_'+ini+'_'+fim+'.xlsx');
+  alerta('✅ Panorama epidemiológico exportado!');
+}
+
+function expCSV(){ expBoletins(); }
+
+function expTXT(){
+  if(!D.visitas.length){alerta('Nenhuma visita','av');return;}
+  const d=hoje();const hV=D.visitas.filter(v=>v.data===d);
+  let t=`BOLETIM ZOONOSES JANDIRA\nData: ${d} | Gerado: ${agora()}\n${'─'.repeat(50)}\nRESUMO: ${hV.length} imóveis | ${hV.reduce((s,v)=>s+v.recs.filter(r=>r.larva==='Sim').length,0)} focos\n\n`;
+  hV.forEach((v,i)=>{t+=`${i+1}. ${v.rua}, ${v.numero} — ${v.situacao}\n   Agente: ${v.agenteNome} | Área: ${v.area||'—'} | ${v.hora}\n`;if(v.recs.length)t+=`   Recipientes: ${v.recs.length} (${v.recs.filter(r=>r.larva==='Sim').length} c/ larva)\n`;if(v.obs)t+=`   Obs: ${v.obs}\n`;t+='\n';});
+  baixar(t,'relatorio_'+d+'.txt','text/plain;charset=utf-8;');alerta('✅ Relatório exportado!');
+}
+
+// ═══════════════════════════ SUSPEITOS ═══════════════════════════
+function prepararFormSusp(){
+  document.getElementById('susp-agente').value = U?.nome||'';
+  document.getElementById('susp-data').value = hj();
+  document.getElementById('susp-municipio').value = 'Jandira';
+}
+
+function salvarSuspeito(){
+  const nome=document.getElementById('susp-nome').value.trim();
+  if(!nome){alerta('❌ Informe o nome do paciente','er');return;}
+  const SINT_LISTA=['Febre alta','Febre baixa','Dor de cabeça','Dor atrás dos olhos','Dor no corpo','Dor muscular','Dor nas articulações','Dor intensa nas articulações','Inchaço nas articulações','Fraqueza','Cansaço','Mal-estar','Náuseas','Vômitos','Manchas vermelhas na pele','Coceira','Olhos vermelhos','Falta de apetite','Tontura','Inchaço leve nas articulações'];
+  const sintsCheck=SINT_LISTA.filter((_,i)=>document.getElementById('s'+(i+1))?.checked);
+  const s={
+    id:Date.now(),
+    agenteReg:U.registro,
+    agente:document.getElementById('susp-agente').value,
+    unidade:document.getElementById('susp-unidade').value,
+    nome, nasc:document.getElementById('susp-nasc').value,
+    cpf:document.getElementById('susp-cpf').value,
+    sus:document.getElementById('susp-sus').value,
+    end:document.getElementById('susp-end').value,
+    endnum:document.getElementById('susp-endnum').value,
+    bairro:document.getElementById('susp-bairro').value,
+    municipio:document.getElementById('susp-municipio').value,
+    tel:document.getElementById('susp-tel').value,
+    local:document.getElementById('susp-local').value,
+    dtSint:document.getElementById('susp-dt-sint').value,
+    dtCol:document.getElementById('susp-dt-col').value,
+    sintsCheck,
+    sint:document.getElementById('susp-sint').value,
+    data:hj()
+  };
+  if(!D.suspeitos) D.suspeitos=[];
+  D.suspeitos.push(s); svLocal(); syncSuspeito(s);
+  alerta('✅ Notificação salva!');
+  // Limpar formulário
+  ['susp-nome','susp-nasc','susp-cpf','susp-sus','susp-end','susp-endnum','susp-bairro','susp-tel','susp-local','susp-dt-sint','susp-dt-col','susp-sint'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('susp-municipio').value='Jandira';
+  for(let i=1;i<=20;i++){const el=document.getElementById('s'+i);if(el)el.checked=false;}
+}
+
+function renderSuspSup(){
+  const el=document.getElementById('ssusp-lista');
+  const vz=document.getElementById('ssusp-vazio');
+  if(!D.suspeitos||!D.suspeitos.length){el.innerHTML='';vz.style.display='';return;}
+  vz.style.display='none';
+  el.innerHTML=D.suspeitos.map(s=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:16px;font-weight:800">${s.nome}</div>
+          <div style="font-size:12px;color:var(--cinza);margin-top:2px">📍 ${s.end||'—'}, ${s.endnum||''} — ${s.bairro||'—'}</div>
+          <div style="font-size:12px;color:var(--cinza)">📅 Registro: ${fmtData(s.data)} | Agente: ${s.agente}</div>
+          ${s.dtSint?`<div style="font-size:12px;color:var(--vermelho);margin-top:2px">🤒 Sintomas desde: ${fmtData(s.dtSint)}</div>`:''}
+        </div>
+        <button class="btn bv bsm" onclick="verFicha(${s.id})">🖨️ Imprimir</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderSuspAdm(){
+  const el=document.getElementById('asusp-lista');
+  const vz=document.getElementById('asusp-vazio');
+  if(!D.suspeitos||!D.suspeitos.length){el.innerHTML='';vz.style.display='';return;}
+  vz.style.display='none';
+  el.innerHTML=D.suspeitos.map(s=>`
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:16px;font-weight:800">${s.nome}</div>
+          <div style="font-size:12px;color:var(--cinza);margin-top:2px">📍 ${s.end||'—'}, ${s.endnum||''} — ${s.bairro||'—'}</div>
+          <div style="font-size:12px;color:var(--cinza)">📅 Registro: ${fmtData(s.data)} | Agente: ${s.agente}</div>
+          ${s.dtSint?`<div style="font-size:12px;color:var(--vermelho);margin-top:2px">🤒 Sintomas desde: ${fmtData(s.dtSint)}</div>`:''}
+        </div>
+        <button class="btn bv bsm" onclick="verFicha(${s.id})">🖨️ Imprimir</button>
+      </div>
+    </div>`).join('');
+}
+
+function verFicha(id){
+  const s=D.suspeitos.find(x=>x.id===id);
+  if(!s) return;
+  document.getElementById('ficha-impressao').innerHTML=`
+    <div id="ficha-print" style="padding:30px;font-family:Arial,sans-serif;font-size:14px;color:#000">
+      <!-- CABEÇALHO -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:15px;border-bottom:2px solid #1a6b3c">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:1px">Secretaria de Saúde</div>
+          <div style="font-size:22px;font-weight:900;color:#1a6b3c">JANDIRA</div>
+          <div style="font-size:11px;color:#555">Prefeitura Municipal</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:16px;font-weight:900;color:#000;text-transform:uppercase;letter-spacing:1px">Notificação de Caso de Dengue</div>
+          <div style="font-size:11px;color:#555;margin-top:4px">Data de Registro: ${fmtData(s.data)}</div>
+        </div>
+      </div>
+
+      <!-- NOTIFICANTE -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:13px;font-weight:900;text-transform:uppercase;border-bottom:1px solid #ccc;padding-bottom:4px;margin-bottom:10px">Notificante</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><span style="font-weight:700">Agente:</span> ${s.agente||'—'}</div>
+          <div><span style="font-weight:700">Unidade:</span> ${s.unidade||'—'}</div>
+        </div>
+      </div>
+
+      <!-- PACIENTE -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:13px;font-weight:900;text-transform:uppercase;border-bottom:1px solid #ccc;padding-bottom:4px;margin-bottom:10px">Paciente</div>
+        <div style="display:grid;grid-template-columns:3fr 1fr;gap:10px;margin-bottom:8px">
+          <div><span style="font-weight:700">Nome:</span> ${s.nome||'—'}</div>
+          <div><span style="font-weight:700">Data Nasc.:</span> ${s.nasc?fmtData(s.nasc):'—'}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div><span style="font-weight:700">CPF:</span> ${s.cpf||'—'}</div>
+          <div><span style="font-weight:700">Cartão SUS:</span> ${s.sus||'—'}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:3fr 1fr;gap:10px;margin-bottom:8px">
+          <div><span style="font-weight:700">Endereço:</span> ${s.end||'—'}</div>
+          <div><span style="font-weight:700">Nº:</span> ${s.endnum||'—'}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div><span style="font-weight:700">Bairro:</span> ${s.bairro||'—'}</div>
+          <div><span style="font-weight:700">Município:</span> ${s.municipio||'Jandira'}</div>
+        </div>
+        <div><span style="font-weight:700">Telefone:</span> ${s.tel||'—'}</div>
+      </div>
+
+      <!-- CLÍNICO -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:13px;font-weight:900;text-transform:uppercase;border-bottom:1px solid #ccc;padding-bottom:4px;margin-bottom:10px">Dados Clínicos</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+          <div><span style="font-weight:700">Local de Infecção:</span> ${s.local||'—'}</div>
+          <div><span style="font-weight:700">Dt Início Sintomas:</span> ${s.dtSint?fmtData(s.dtSint):'—'}</div>
+        </div>
+        <div style="margin-bottom:8px"><span style="font-weight:700">Data de Coleta:</span> ${s.dtCol?fmtData(s.dtCol):'—'}</div>
+        <div>
+          <span style="font-weight:700">Sintomas:</span>
+          <div style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+            ${(s.sintsCheck||[]).map(st=>`<div style="display:flex;align-items:center;gap:6px;font-size:13px">
+              <span style="color:#198754;font-weight:700">✓</span> ${st}
+            </div>`).join('')}
+            ${!(s.sintsCheck||[]).length?'<div style="color:#999;font-size:13px">Nenhum sintoma selecionado</div>':''}
+          </div>
+          ${s.sint?`<div style="margin-top:10px"><span style="font-weight:700">Outros / Observações:</span><div style="margin-top:4px;padding:8px;border:1px solid #ccc;border-radius:4px;min-height:40px;font-size:13px">${s.sint}</div></div>`:''}
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('mdl-imprimir').classList.add('show');
+}
+
+function imprimirFicha(){
+  const conteudo=document.getElementById('ficha-print').innerHTML;
+  const janela=window.open('','_blank');
+  janela.document.write(`<!DOCTYPE html><html><head><title>Notificação Dengue</title><style>body{margin:20px;font-family:Arial,sans-serif;}@media print{button{display:none!important;}}</style></head><body>${conteudo}</body></html>`);
+  janela.document.close();
+  janela.focus();
+  setTimeout(()=>janela.print(),500);
+}
+
+function fmtData(d){
+  if(!d) return '—';
+  if(d.includes('/')) return d;
+  const p=d.split('-');
+  if(p.length===3) return `${p[2]}/${p[1]}/${p[0]}`;
+  return d;
+}
+
+// ═══════════════════════════ UTILS ═══════════════════════════
+function hoje(){return new Date().toLocaleDateString('pt-BR');}
+function hj(){return new Date().toISOString().slice(0,10);}
+function agora(){return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function bdgSit(s){const m={Trabalhado:'bv2',Fechado:'ba2',Recusa:'br2',Desocupado:'bc2',Temporada:'baz',Parcial:'blo'};return`<span class="bdg ${m[s]||'bc2'}">${s}</span>`;}
+function alerta(msg,t='ok'){const el=document.createElement('div');el.className='af';el.textContent=msg;el.style.background=t==='er'?'#dc3545':t==='av'?'#ffc107':'#198754';if(t==='av')el.style.color='#000';document.body.appendChild(el);setTimeout(()=>el.remove(),2500);}
+function baixar(c,n,t){const b=new Blob([c],{type:t});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=n;a.click();}
+function confirmar(tit,txt,cb){document.getElementById('mdl-tit').textContent=tit;document.getElementById('mdl-txt').textContent=txt;document.getElementById('mdl-ok').onclick=()=>{fecharMdl();cb();};document.getElementById('mdl-confirm').classList.add('show');}
+function fecharMdl(){document.getElementById('mdl-confirm').classList.remove('show');}
+
+// PWA
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+// Listeners
+document.getElementById('inp-sen').addEventListener('keydown',e=>{if(e.key==='Enter')fazerLogin();});
+// inp-num: histórico ativado pela situação, não pelo endereço
+</script>
+</body>
+</html>
