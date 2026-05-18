@@ -6,7 +6,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#198754">
-<meta name="screen-orientation" content="landscape">
 <title>Zoonoses Jandira</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1020,10 +1019,6 @@ window.addEventListener('load',()=>{
   carregarDB();
   setTimeout(processarFila,3000);
   setTimeout(baixarLogradouros,5000);
-  // Tentar travar orientação landscape
-  if(screen.orientation && screen.orientation.lock){
-    screen.orientation.lock('landscape').catch(()=>{});
-  }
 });
 
 
